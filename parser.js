@@ -16,6 +16,18 @@ function record_failure(failure, i) {
   best_failure_index = i;
 }
 
+const cache = {};
+
+function memoize(name, func) {
+  return function (stream, index) {
+    const value = cache[`${name}-${index}`];
+    if(value) {
+      return value;
+    }
+    return func(stream, index);
+  }
+}
+
 function START_0(stream, index) {
   let i = index;
   const children = [];
@@ -51,6 +63,8 @@ function START_0(stream, index) {
   node.success = i === stream.length; node.last_index = i;
   return node;
 }
+START_0 = memoize('START_0', START_0);
+
 
 function START_1(stream, index) {
   let i = index;
@@ -83,6 +97,8 @@ function START_1(stream, index) {
   node.success = i === stream.length; node.last_index = i;
   return node;
 }
+START_1 = memoize('START_1', START_1);
+
 
 function START(stream, index) {
   return START_0(stream, index)
@@ -117,6 +133,8 @@ function GLOBAL_STATEMENTS_0(stream, index) {
   node.success = i === stream.length; node.last_index = i;
   return node;
 }
+GLOBAL_STATEMENTS_0 = memoize('GLOBAL_STATEMENTS_0', GLOBAL_STATEMENTS_0);
+
 
 function GLOBAL_STATEMENTS_1(stream, index) {
   let i = index;
@@ -143,6 +161,8 @@ function GLOBAL_STATEMENTS_1(stream, index) {
   node.success = i === stream.length; node.last_index = i;
   return node;
 }
+GLOBAL_STATEMENTS_1 = memoize('GLOBAL_STATEMENTS_1', GLOBAL_STATEMENTS_1);
+
 
 function GLOBAL_STATEMENTS(stream, index) {
   return GLOBAL_STATEMENTS_0(stream, index)
@@ -163,6 +183,8 @@ function GLOBAL_STATEMENT_0(stream, index) {
   node.success = i === stream.length; node.last_index = i;
   return node;
 }
+GLOBAL_STATEMENT_0 = memoize('GLOBAL_STATEMENT_0', GLOBAL_STATEMENT_0);
+
 
 function GLOBAL_STATEMENT(stream, index) {
   return GLOBAL_STATEMENT_0(stream, index);
@@ -210,6 +232,8 @@ function math_operation_0(stream, index) {
   node.success = i === stream.length; node.last_index = i;
   return node;
 }
+math_operation_0 = memoize('math_operation_0', math_operation_0);
+
 
 function math_operation_1(stream, index) {
   let i = index;
@@ -236,6 +260,8 @@ function math_operation_1(stream, index) {
   node.success = i === stream.length; node.last_index = i;
   return node;
 }
+math_operation_1 = memoize('math_operation_1', math_operation_1);
+
 
 function math_operation(stream, index) {
   return math_operation_0(stream, index)

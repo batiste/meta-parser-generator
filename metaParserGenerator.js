@@ -17,6 +17,18 @@ function record_failure(failure, i) {
   best_failure_array.push(failure);
   best_failure_index = i;
 }
+
+const cache = {};
+
+function memoize(name, func) {
+  return function (stream, index) {
+    const value = cache[\`\${name}-\${index}\`];
+    if(value) {
+      return value;
+    }
+    return func(stream, index);
+  }
+}
 `;
 
 function generateTokenizer(tokenDef) {
@@ -202,7 +214,8 @@ function generateSubRule(name, index, subRule, tokensDef, debug) {
   output.push('  node.success = i === stream.length; node.last_index = i;');
   output.push('  return node;');
   output.push('}');
-  output.push('');
+  output.push(`${name}_${index} = memoize('${name}_${index}', ${name}_${index});`);
+  output.push('\n');
   return output;
 }
 

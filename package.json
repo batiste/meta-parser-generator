@@ -1,0 +1,28 @@
+{
+  "name": "meta-parser-generator",
+  "version": "1.0.0",
+  "description": "A peg parser generator written in JavaScript for JavaScript",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "test": "jest --no-cache"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/batiste/meta-parser-generator.git"
+  },
+  "keywords": [
+    "parser",
+    "language",
+    "meta",
+    "peg"
+  ],
+  "author": "Batiste Bieler",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/batiste/meta-parser-generator/issues"
+  },
+  "homepage": "https://github.com/batiste/meta-parser-generator#readme",
+  "devDependencies": {
+    "jest": "^24.9.0"
+  }
+}

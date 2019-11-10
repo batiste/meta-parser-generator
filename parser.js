@@ -16,19 +16,22 @@ function record_failure(failure, i) {
   best_failure_index = i;
 }
 
-const cache = {};
+let cache = {};
 
 function memoize(name, func) {
-  return function (stream, index) {
-    const value = cache[`${name}-${index}`];
-    if(value) {
+  return function memoize_inner(stream, index) {
+    const key = `${name}-${index}`;
+    let value = cache[key];
+    if (value !== undefined) {
       return value;
     }
-    return func(stream, index);
-  }
+    value = func(stream, index);
+    cache[key] = value;
+    return value;
+  };
 }
 
-function START_0(stream, index) {
+let START_0 = (stream, index) => {
   let i = index;
   const children = [];
   const named = {};
@@ -37,7 +40,7 @@ function START_0(stream, index) {
     subRule: 0, type: 'START', named,
   };
   const _rule_0 = GLOBAL_STATEMENT(stream, i);
-  if (!_rule_0) return;
+  if (!_rule_0) return false;
   children.push(_rule_0);
   i = _rule_0.last_index;
   let _rule_1 = GLOBAL_STATEMENTS(stream, i);
@@ -56,17 +59,17 @@ function START_0(stream, index) {
       };
       record_failure(failure, i);
     }
-    return;
+    return false;
   }
 
   children.push(stream[i]); i++;
   node.success = i === stream.length; node.last_index = i;
   return node;
-}
+};
 START_0 = memoize('START_0', START_0);
 
 
-function START_1(stream, index) {
+let START_1 = (stream, index) => {
   let i = index;
   const children = [];
   const named = {};
@@ -90,13 +93,13 @@ function START_1(stream, index) {
       };
       record_failure(failure, i);
     }
-    return;
+    return false;
   }
 
   children.push(stream[i]); i++;
   node.success = i === stream.length; node.last_index = i;
   return node;
-}
+};
 START_1 = memoize('START_1', START_1);
 
 
@@ -104,7 +107,7 @@ function START(stream, index) {
   return START_0(stream, index)
     || START_1(stream, index);
 }
-function GLOBAL_STATEMENTS_0(stream, index) {
+let GLOBAL_STATEMENTS_0 = (stream, index) => {
   let i = index;
   const children = [];
   const named = {};
@@ -122,21 +125,21 @@ function GLOBAL_STATEMENTS_0(stream, index) {
       };
       record_failure(failure, i);
     }
-    return;
+    return false;
   }
 
   children.push(stream[i]); i++;
   const _rule_1 = GLOBAL_STATEMENT(stream, i);
-  if (!_rule_1) return;
+  if (!_rule_1) return false;
   children.push(_rule_1);
   i = _rule_1.last_index;
   node.success = i === stream.length; node.last_index = i;
   return node;
-}
+};
 GLOBAL_STATEMENTS_0 = memoize('GLOBAL_STATEMENTS_0', GLOBAL_STATEMENTS_0);
 
 
-function GLOBAL_STATEMENTS_1(stream, index) {
+let GLOBAL_STATEMENTS_1 = (stream, index) => {
   let i = index;
   const children = [];
   const named = {};
@@ -154,13 +157,13 @@ function GLOBAL_STATEMENTS_1(stream, index) {
       };
       record_failure(failure, i);
     }
-    return;
+    return false;
   }
 
   children.push(stream[i]); i++;
   node.success = i === stream.length; node.last_index = i;
   return node;
-}
+};
 GLOBAL_STATEMENTS_1 = memoize('GLOBAL_STATEMENTS_1', GLOBAL_STATEMENTS_1);
 
 
@@ -168,7 +171,7 @@ function GLOBAL_STATEMENTS(stream, index) {
   return GLOBAL_STATEMENTS_0(stream, index)
     || GLOBAL_STATEMENTS_1(stream, index);
 }
-function GLOBAL_STATEMENT_0(stream, index) {
+let GLOBAL_STATEMENT_0 = (stream, index) => {
   let i = index;
   const children = [];
   const named = {};
@@ -177,19 +180,19 @@ function GLOBAL_STATEMENT_0(stream, index) {
     subRule: 0, type: 'GLOBAL_STATEMENT', named,
   };
   const _rule_0 = math_operation(stream, i);
-  if (!_rule_0) return;
+  if (!_rule_0) return false;
   children.push(_rule_0);
   i = _rule_0.last_index;
   node.success = i === stream.length; node.last_index = i;
   return node;
-}
+};
 GLOBAL_STATEMENT_0 = memoize('GLOBAL_STATEMENT_0', GLOBAL_STATEMENT_0);
 
 
 function GLOBAL_STATEMENT(stream, index) {
   return GLOBAL_STATEMENT_0(stream, index);
 }
-function math_operation_0(stream, index) {
+let math_operation_0 = (stream, index) => {
   let i = index;
   const children = [];
   const named = {};
@@ -207,7 +210,7 @@ function math_operation_0(stream, index) {
       };
       record_failure(failure, i);
     }
-    return;
+    return false;
   }
 
   children.push(stream[i]); i++;
@@ -221,21 +224,21 @@ function math_operation_0(stream, index) {
       };
       record_failure(failure, i);
     }
-    return;
+    return false;
   }
 
   children.push(stream[i]); i++;
   const _rule_2 = math_operation(stream, i);
-  if (!_rule_2) return;
+  if (!_rule_2) return false;
   children.push(_rule_2);
   i = _rule_2.last_index;
   node.success = i === stream.length; node.last_index = i;
   return node;
-}
+};
 math_operation_0 = memoize('math_operation_0', math_operation_0);
 
 
-function math_operation_1(stream, index) {
+let math_operation_1 = (stream, index) => {
   let i = index;
   const children = [];
   const named = {};
@@ -253,13 +256,13 @@ function math_operation_1(stream, index) {
       };
       record_failure(failure, i);
     }
-    return;
+    return false;
   }
 
   children.push(stream[i]); i++;
   node.success = i === stream.length; node.last_index = i;
   return node;
-}
+};
 math_operation_1 = memoize('math_operation_1', math_operation_1);
 
 
@@ -403,6 +406,7 @@ module.exports = {
     best_failure = null;
     best_failure_index = 0;
     best_failure_array = [];
+    cache = {};
     const result = START(stream, 0);
     if (!result) {
       return best_failure;

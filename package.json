@@ -2,7 +2,7 @@
   "name": "meta-parser-generator",
   "version": "1.0.0",
   "description": "A peg parser generator written in JavaScript for JavaScript",
-  "main": ".eslintrc.js",
+  "main": "metaParserGenerator.js",
   "scripts": {
     "test": "jest --no-cache"
   },

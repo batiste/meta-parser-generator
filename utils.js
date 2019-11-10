@@ -145,5 +145,4 @@ module.exports = {
   checkGrammarAndTokens,
   displayError,
   printTree,
-  NC,
 };

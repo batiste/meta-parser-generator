@@ -8,10 +8,11 @@ This code has been extracted from https://github.com/batiste/blop-language
 
 Characterisitcs
 
-  * Left to Right parser, one token look ahead
-  * Memoization
+  * LL parser (Left to Right parser), one token look ahead
   * Parser code is generated from a grammar
   * Decent error reporting on parsing error
-  * No left recursion
+  * Memoization
+  * No left recursion (yet)
+  * Small source code (~500 lines of code), no dependencies
 
-<img src="/error.png" width="400">
+<img src="/error.png" width="800">

@@ -1,6 +1,7 @@
 
 const grammar = {
   'START': [
+    // necessary to accept the firt line to not be a newline
     ['GLOBAL_STATEMENT', 'GLOBAL_STATEMENTS*', 'EOS'],
     ['GLOBAL_STATEMENTS*', 'EOS'],
   ],

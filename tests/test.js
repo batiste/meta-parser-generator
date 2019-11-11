@@ -1,14 +1,14 @@
 const parser = require('./parser');
 const { tokensDefinition } = require('./tokensDefinition');
-// const { grammar } = require('./grammar');
-// const { displayError } = require('../utils');
+const { grammar } = require('./grammar');
+const { displayError } = require('../utils');
 
 function parse(code) {
   const tokens = parser.tokenize(tokensDefinition, code);
   const ast = parser.parse(tokens);
-  // if (!ast.success) {
-  //   displayError(tokens, tokensDefinition, grammar, ast)
-  // }
+  if (!ast.success && process.env.DEBUG) {
+    displayError(tokens, tokensDefinition, grammar, ast);
+  }
   return ast;
 }
 

@@ -12,7 +12,7 @@ Characterisitcs
   * Parser code is generated from a grammar
   * Decent error reporting on parsing error
   * Memoization
-  * No left recursion
+  * No left recursion (yet)
   * Small source code (~300 lines of code), no dependencies
 
 <img src="/error.png" width="800">

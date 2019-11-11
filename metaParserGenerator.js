@@ -264,7 +264,7 @@ function generate(grammar, tokensDef, debug) {
 }
 
 function generateParser(grammar, tokensDefinition, filename) {
-  fs.writeFileSync(path.resolve(__dirname, filename),
+  fs.writeFileSync(filename,
     generate(grammar, tokensDefinition, false).join('\n'), (err) => {
       if (err) {
         // eslint-disable-next-line no-console

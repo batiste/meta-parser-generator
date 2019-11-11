@@ -14,4 +14,4 @@ Characterisitcs
   * Decent error reporting on parsing error
   * No left recursion
 
-<img src="/error.png" width="400">
+<img src="/error.png" width="600">

@@ -254,20 +254,6 @@ function generateSubRule(name, index, subRule, tokensDef, debug) {
   return output;
 }
 
-// // prime this operator with a failure
-// cache[`math_operation_0-${index}`] = { value: false, index };
-// // eslint-disable-next-line no-constant-condition
-// let _rule_0;
-// while (true) {
-//   _rule_0 = math_operation(stream, i);
-//   if (_rule_0.stream_index <= i) {
-//     break;
-//   }
-//   i = _rule_0.last_index;
-//   cache[`math_operation_0-${index}`] = { value: _rule_0, index: i };
-// }
-// children.push(_rule_0);
-
 function generate(grammar, tokensDef, debug) {
   let output = [];
   checkGrammarAndTokens(grammar, tokensDef);

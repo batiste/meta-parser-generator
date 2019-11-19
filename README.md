@@ -8,7 +8,7 @@ This code has been extracted from https://github.com/batiste/blop-language
 
 Characterisitcs
 
-  * LL parser (Left to Right parser), one token look ahead
+  * LL parser (Left to Right parser), arbitrary look ahead
   * Parser code is generated from a grammar
   * Decent error reporting on parsing error
   * Memoization

@@ -112,13 +112,14 @@ function checkGrammarAndTokens(grammar, tokensDefinition) {
 function preprocessGrammar(rules) {
   return Object.keys(rules).reduce((accu, key) => {
     accu[key] = rules[key].map(
-      subRule => subRule.map((subRuleItem) => {
+      subRule => subRule.map((subRuleItem, index) => {
         if (subRuleItem instanceof Function) {
           return { function: true, value: subRuleItem };
         }
         const values = subRuleItem.split(':');
         let optional = false;
         let repeatable = false;
+        let leftRecursion = false;
         if (values[0].endsWith('?')) {
           values[0] = values[0].substring(0, values[0].length - 1);
           optional = true;
@@ -127,11 +128,15 @@ function preprocessGrammar(rules) {
           values[0] = values[0].substring(0, values[0].length - 1);
           repeatable = true;
         }
+        if (index === 0 && values[0] === key) {
+          leftRecursion = true;
+        }
         return {
           value: values[0],
           alias: values[1],
           optional,
           repeatable,
+          leftRecursion,
         };
       }),
     );

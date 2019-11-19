@@ -1,6 +1,6 @@
 
 const fs = require('fs');
-const path = require('path');
+// const path = require('path');
 const { preprocessGrammar, checkGrammarAndTokens } = require('./utils');
 
 const recordFailure = `
@@ -33,6 +33,33 @@ function memoize(name, func) {
     return value;
   };
 }
+
+let cacheR = {};
+
+// based on https://medium.com/@gvanrossum_83706/left-recursive-peg-grammars-65dab3c580e1
+function memoize_left_recur(name, func) {
+  return function memoize_inner(stream, index) {
+    const key = \`\${name}-\${index}\`;
+    let value = cacheR[key];
+    if (value !== undefined) {
+      return value;
+    }
+    // prime this rule with a failure
+    cacheR[key] = false;
+    let lastpos;
+    let lastvalue = value;
+    while (true) {
+      value = func(stream, index);
+      if (!value) break;
+      if (value.last_index <= lastpos) break;
+      lastpos = value.last_index;
+      lastvalue = value;
+      cacheR[key] = value;
+    }
+    return lastvalue;
+  };
+}
+
 `;
 
 function generateTokenizer(tokenDef) {
@@ -218,10 +245,28 @@ function generateSubRule(name, index, subRule, tokensDef, debug) {
   output.push('  node.success = i === stream.length; node.last_index = i;');
   output.push('  return node;');
   output.push('};');
-  output.push(`${name}_${index} = memoize('${name}_${index}', ${name}_${index});`);
+  if (subRule[0].leftRecursion) {
+    output.push(`${name}_${index} = memoize_left_recur('${name}_${index}', ${name}_${index});`);
+  } else {
+    output.push(`${name}_${index} = memoize('${name}_${index}', ${name}_${index});`);
+  }
   output.push('\n');
   return output;
 }
+
+// // prime this operator with a failure
+// cache[`math_operation_0-${index}`] = { value: false, index };
+// // eslint-disable-next-line no-constant-condition
+// let _rule_0;
+// while (true) {
+//   _rule_0 = math_operation(stream, i);
+//   if (_rule_0.stream_index <= i) {
+//     break;
+//   }
+//   i = _rule_0.last_index;
+//   cache[`math_operation_0-${index}`] = { value: _rule_0, index: i };
+// }
+// children.push(_rule_0);
 
 function generate(grammar, tokensDef, debug) {
   let output = [];
@@ -251,6 +296,7 @@ function generate(grammar, tokensDef, debug) {
     best_failure_index = 0;
     best_failure_array = [];
     cache = {};
+    cacheR = {};
     const result = START(stream, 0);
     if (!result) {
       return best_failure;

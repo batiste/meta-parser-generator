@@ -31,6 +31,33 @@ function memoize(name, func) {
   };
 }
 
+let cacheR = {};
+
+// based on https://medium.com/@gvanrossum_83706/left-recursive-peg-grammars-65dab3c580e1
+function memoize_left_recur(name, func) {
+  return function memoize_inner(stream, index) {
+    const key = `${name}-${index}`;
+    let value = cacheR[key];
+    if (value !== undefined) {
+      return value;
+    }
+    // prime this rule with a failure
+    cacheR[key] = false;
+    let lastpos;
+    let lastvalue = value;
+    while (true) {
+      value = func(stream, index);
+      if (!value) break;
+      if (value.last_index <= lastpos) break;
+      lastpos = value.last_index;
+      lastvalue = value;
+      cacheR[key] = value;
+    }
+    return lastvalue;
+  };
+}
+
+
 let START_0 = (stream, index) => {
   let i = index;
   const children = [];
@@ -200,20 +227,10 @@ let math_operation_0 = (stream, index) => {
     children, stream_index: index, name: 'math_operation',
     subRule: 0, type: 'math_operation', named,
   };
-
-  if (stream[i].type !== 'number') {
-    if (i >= best_failure_index) {
-      const failure = {
-        rule_name: 'math_operation', sub_rule_index: 0,
-        sub_rule_stream_index: i - index, sub_rule_token_index: 0,
-        stream_index: i, token: stream[i], first_token: stream[index], success: false,
-      };
-      record_failure(failure, i);
-    }
-    return false;
-  }
-
-  children.push(stream[i]); i++;
+  const _rule_0 = math_operation(stream, i);
+  if (!_rule_0) return false;
+  children.push(_rule_0);
+  i = _rule_0.last_index;
 
   if (stream[i].type !== 'math_operator') {
     if (i >= best_failure_index) {
@@ -228,14 +245,24 @@ let math_operation_0 = (stream, index) => {
   }
 
   children.push(stream[i]); i++;
-  const _rule_2 = math_operation(stream, i);
-  if (!_rule_2) return false;
-  children.push(_rule_2);
-  i = _rule_2.last_index;
+
+  if (stream[i].type !== 'number') {
+    if (i >= best_failure_index) {
+      const failure = {
+        rule_name: 'math_operation', sub_rule_index: 0,
+        sub_rule_stream_index: i - index, sub_rule_token_index: 2,
+        stream_index: i, token: stream[i], first_token: stream[index], success: false,
+      };
+      record_failure(failure, i);
+    }
+    return false;
+  }
+
+  children.push(stream[i]); i++;
   node.success = i === stream.length; node.last_index = i;
   return node;
 };
-math_operation_0 = memoize('math_operation_0', math_operation_0);
+math_operation_0 = memoize_left_recur('math_operation_0', math_operation_0);
 
 
 let math_operation_1 = (stream, index) => {
@@ -407,6 +434,7 @@ module.exports = {
     best_failure_index = 0;
     best_failure_array = [];
     cache = {};
+    cacheR = {};
     const result = START(stream, 0);
     if (!result) {
       return best_failure;

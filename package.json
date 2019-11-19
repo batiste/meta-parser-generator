@@ -4,7 +4,8 @@
   "description": "A peg parser generator written in JavaScript for JavaScript",
   "main": "metaParserGenerator.js",
   "scripts": {
-    "test": "jest --no-cache"
+    "test": "jest --no-cache",
+    "ttest": "node ./tests/generateParser.js && jest --no-cache"
   },
   "repository": {
     "type": "git",

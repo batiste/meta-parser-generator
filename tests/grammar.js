@@ -13,7 +13,7 @@ const grammar = {
     ['math_operation'],
   ],
   'math_operation': [
-    ['number', 'math_operator', 'math_operation'],
+    ['math_operation', 'math_operator', 'number'],
     ['number'],
   ],
 };

@@ -1,6 +1,6 @@
 {
   "name": "meta-parser-generator",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "A peg parser generator written in JavaScript for JavaScript",
   "main": "metaParserGenerator.js",
   "scripts": {

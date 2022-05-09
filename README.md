@@ -1,5 +1,9 @@
 # meta-parser-generator
 
+```bash
+npm install meta-parser-generator
+```
+
 Generate an efficient parser using a grammar and and token definition.
 Meta programming is used to generate an efficient output.
 The JavaScript call stack is used within the parser. So if you design a very recursive grammar you might trigger a "Maximum call stack size exceeded" error for a large input.

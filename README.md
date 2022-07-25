@@ -11,7 +11,7 @@ The JavaScript call stack is used by those functoins within the parser. So if yo
 
 This code has been extracted from https://github.com/batiste/blop-language
 
-Characteristic
+## Characteristics
 
   * LL parser (Left to Right parser), arbitrary look ahead
   * Direct Left recursion support (no indirect)

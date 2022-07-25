@@ -37,7 +37,7 @@ const tokensDefinition = {
 const grammar = {
   'START': [
     // necessary to accept the firt line to not be a newline
-    ['GLOBAL_STATEMENT', 'GLOBAL_STATEMENTS*', 'EOS'],
+    ['GLOBAL_STATEMENT', 'GLOBAL_STATEMENTS*', 'EOS'], // EOS is the End Of Stream token, added automatically by the tokenizer
     ['GLOBAL_STATEMENTS*', 'EOS'],
   ],
   'GLOBAL_STATEMENTS': [
@@ -53,6 +53,7 @@ const grammar = {
   ],
 };
 
+// this generate the executable parser file
 generateParser(grammar, tokensDefinition, path.resolve(__dirname, './parser.js'));
 console.log('parser generated');
 ```
@@ -67,13 +68,14 @@ const { displayError } = require('meta-parser-generator');
 function parse(code) {
   const tokens = parser.tokenize(tokensDefinition, code);
   const ast = parser.parse(tokens);
-  if (!ast.success && process.env.DEBUG) {
+  if (!ast.success) {
     displayError(tokens, tokensDefinition, grammar, ast);
   }
   return ast;
 }
 
 let ast = parse('9+10-190.3');
+console.log(ast)
 ```
 
 <img src="/error.png" width="800">

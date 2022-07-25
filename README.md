@@ -1,4 +1,4 @@
-# meta-parser-generator
+# Meta Parser Generator
 
 ```bash
 npm install meta-parser-generator

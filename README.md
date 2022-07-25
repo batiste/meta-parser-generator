@@ -29,12 +29,15 @@ This will generate a mathematical operation parser
 const { generateParser } = require('meta-parser-generator');
 const path = require('path');
 
+// only 3 possible tokens
 const tokensDefinition = {
   'number': { reg: /^[0-9]+(\.[0-9]*)?/ },
-  'math_operator': { reg: /^(\+|-|\*|%)/ }
+  'math_operator': { reg: /^(\+|-|\*|%)/ },
+  'newline': { str: '\n' }
 }
 
 const grammar = {
+  // keyword for the entry point of the grammar
   'START': [
     // necessary to accept the firt line to not be a newline
     ['GLOBAL_STATEMENT', 'GLOBAL_STATEMENTS*', 'EOS'], // EOS is the End Of Stream token, added automatically by the tokenizer
@@ -48,6 +51,7 @@ const grammar = {
     ['math_operation'],
   ],
   'math_operation': [
+    // direct left recursion here
     ['math_operation', 'math_operator', 'number'],
     ['number'],
   ],

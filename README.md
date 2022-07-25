@@ -40,11 +40,11 @@ const grammar = {
   // keyword for the entry point of the grammar
   'START': [
     // necessary to accept the firt line to not be a newline
-    ['MATH', 'GLOBAL_STATEMENTS*', 'EOS'], // EOS is the End Of Stream token, added automatically by the tokenizer
+    ['MATH', 'LINE*', 'EOS'], // EOS is the End Of Stream token, added automatically by the tokenizer
     // * is the repeating modifier {0,∞}. Better than recursion as it does not use the call stack
-    ['GLOBAL_STATEMENTS*', 'EOS'],
+    ['LINE*', 'EOS'],
   ],
-  'GLOBAL_STATEMENTS': [
+  'LINE': [
     ['newline', 'MATH'],
     ['newline'],
   ],

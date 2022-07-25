@@ -41,6 +41,7 @@ const grammar = {
   'START': [
     // necessary to accept the firt line to not be a newline
     ['GLOBAL_STATEMENT', 'GLOBAL_STATEMENTS*', 'EOS'], // EOS is the End Of Stream token, added automatically by the tokenizer
+    // * is the repeating modifier. Better to use this than recursion as it does not use the call stack
     ['GLOBAL_STATEMENTS*', 'EOS'],
   ],
   'GLOBAL_STATEMENTS': [

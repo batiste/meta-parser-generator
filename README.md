@@ -20,5 +20,60 @@ Characteristic
   * Decent error reporting on parsing error
   * Memoization
   * Small source code (~500 lines of code), no dependencies
+  
+## Generate parser
+
+This will generate a mathematical operation parser
+  
+```javascript
+const { generateParser } = require('meta-parser-generator');
+const path = require('path');
+
+const tokensDefinition = {
+  'number': { reg: /^[0-9]+(\.[0-9]*)?/ },
+  'math_operator': { reg: /^(\+|-|\*|%)/ }
+}
+
+const grammar = {
+  'START': [
+    // necessary to accept the firt line to not be a newline
+    ['GLOBAL_STATEMENT', 'GLOBAL_STATEMENTS*', 'EOS'],
+    ['GLOBAL_STATEMENTS*', 'EOS'],
+  ],
+  'GLOBAL_STATEMENTS': [
+    ['newline', 'GLOBAL_STATEMENT'],
+    ['newline'],
+  ],
+  'GLOBAL_STATEMENT': [
+    ['math_operation'],
+  ],
+  'math_operation': [
+    ['math_operation', 'math_operator', 'number'],
+    ['number'],
+  ],
+};
+
+generateParser(grammar, tokensDefinition, path.resolve(__dirname, './parser.js'));
+console.log('parser generated');
+```
+
+Then you can use the generated parser this way
+
+```javascript
+const parser = require('./parser');
+const { tokensDefinition, grammar } = require('./generator');
+const { displayError } = require('meta-parser-generator');
+
+function parse(code) {
+  const tokens = parser.tokenize(tokensDefinition, code);
+  const ast = parser.parse(tokens);
+  if (!ast.success && process.env.DEBUG) {
+    displayError(tokens, tokensDefinition, grammar, ast);
+  }
+  return ast;
+}
+
+let ast = parse('9+10-190.3');
+```
 
 <img src="/error.png" width="800">

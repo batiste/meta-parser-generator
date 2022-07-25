@@ -21,7 +21,7 @@ Characteristic
   * Memoization
   * Small source code (~500 lines of code), no dependencies
   
-## Generate parser
+## How to generate and use a parser
 
 This will generate a mathematical operation parser
   

@@ -37,7 +37,7 @@ const tokensDefinition = {
 }
 
 const grammar = {
-  // keyword for the entry point of the grammar
+  // START is the convention keyword for the entry point of the grammar
   'START': [
     // necessary to accept the firt line to not be a newline
     ['MATH', 'LINE*', 'EOS'], // EOS is the End Of Stream token, added automatically by the tokenizer

@@ -80,4 +80,9 @@ let ast = parse('9+10-190.3');
 console.log(ast)
 ```
 
+### Errors
+
+The util function `displayError` will display detailed informations about a tokenizer or parsing error. The most likely
+parsing candidate hint is based on most token consumed.
+
 <img src="/error.png" width="800">

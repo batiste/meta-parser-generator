@@ -152,7 +152,7 @@ function handle_MATH_node(node) {
 
 ### Errors
 
-The util function `displayError` will display detailed informations about a tokenizer or parsing error. The most likely
-parsing candidate hint is based on most token consumed.
+The util function `displayError` will display detailed informations about a tokenizer or parsing error. The hint given
+is based on the first grammar rule found that consume the most token from the stream.
 
 <img src="/error.png" width="800">

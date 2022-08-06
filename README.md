@@ -135,7 +135,7 @@ To facilitate your work with the AST, you can name a rule or a token using a col
 ]
 ```
 
-Then in the correspongding `RuleNode` you will find the `math_operator` in the children, but also in the named object.
+Then in the corresponding `RuleNode` you will find the `math_operator` in the children, but also in the named object.
 This is useful so could can more easily handle and differenciate your rules:
 
 ```typescript

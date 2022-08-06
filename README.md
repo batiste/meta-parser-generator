@@ -84,7 +84,7 @@ console.log(ast)
 
 ```typescript
 interface ASTNode {
-    children: [ASTNode]  // list of chilrend ASTNode
+    children: [ASTNode]  // list of children ASTNode
     stream_index: number // position of the first token for this rule in the token stream
     type: str            // name of the rule
     subRule: number      // index of this grammar rule in the subrule array

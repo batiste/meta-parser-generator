@@ -118,7 +118,7 @@ There is 3 modifiers you can add at the end of a rule or token
 ? is the {0,1} conditional modifier
 ```
 
-#### Examples
+#### Example
 
 ```typescript
 ['PREPOSITION', 'ADJECTIVE*', 'NAME']
@@ -126,7 +126,7 @@ There is 3 modifiers you can add at the end of a rule or token
 
 ### Named alias
 
-To facilitate your work with the AST, you can name a rule or a token with using a colon
+To facilitate your work with the AST, you can name a rule or a token using a colon
 
 ```typescript
 'MATH': [

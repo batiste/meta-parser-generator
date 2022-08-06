@@ -130,7 +130,7 @@ To facilitate your work with the AST, you can name a rule or a token using a col
 
 ```typescript
 'MATH': [
-  ['MATH', 'math_operator:operator', 'number:num'], // here the math_operator and number token are named
+  ['MATH', 'math_operator:operator', 'number:num'], // math_operator and number token are named
   ['number:num'],                                   // here only number is named
 ]
 ```

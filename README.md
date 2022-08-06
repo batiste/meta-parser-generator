@@ -16,7 +16,7 @@ This code has been extracted from https://github.com/batiste/blop-language
   * LL parser (Left to Right parser), arbitrary look ahead
   * Direct Left recursion support (no indirect)
   * Parser code is generated from a grammar
-  * Good parsing performance
+  * Good parsing performance (provided your grammar is efficient)
   * Decent error reporting on parsing error
   * Memoization
   * Small source code (~500 lines of code), no dependencies

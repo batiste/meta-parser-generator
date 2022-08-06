@@ -7,8 +7,6 @@ npm install meta-parser-generator
 Meta Parser Generator will help you generate an efficient parser using a grammar and a token definition.
 Meta programming is used to generate a single self contained parser file.
 
-The JavaScript call stack is used by those functoins within the parser. So if you design a very recursive inefficient grammar you might trigger a "Maximum call stack size exceeded" error for a large input.
-
 This code has been extracted from https://github.com/batiste/blop-language
 
 ## Characteristics
@@ -79,6 +77,8 @@ function parse(input) {
 let ast = parse('9+10-190.3');
 console.log(ast)
 ```
+
+The JavaScript call stack is used by generated functions within the parser. So if you design a very recursive inefficient grammar you might trigger a "Maximum call stack size exceeded" error for a large input.
 
 ### AST interface
 

@@ -89,7 +89,7 @@ interface RuleNode {
     stream_index: number                // position of the first token for this rule in the token stream
     type: str                           // name of the rule
     subRule: number                     // index of this grammar rule in the subrule array
-    children: [ASTNode]                 // list of children, ASTNode or Token
+    children: [ASTNode]                 // list of children
     named: { [key: string]: ASTNode; }  // named elements withing this rule, see named aliases 
 }
 ```

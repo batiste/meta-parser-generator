@@ -58,9 +58,10 @@ generateParser(grammar, tokensDefinition, path.resolve(__dirname, './parser.js')
 console.log('parser generated');
 ```
 
-The JavaScript call stack is used by generated functions within the parser. So if you design a very recursive inefficient grammar you might trigger a "Maximum call stack size exceeded" error for a large input. In this MATH example you have a recursion so it means you can only parse expressions such as 
-1+2+3+4+5+...stack-size.
-To know the stack size of V8, you can run `node --v8-options | grep stack-size`
+The JavaScript call stack is used by generated functions within the parser. So if you design a very recursive grammar you might trigger a "Maximum call stack size exceeded" error for a large input. In our `MATH` example you have a left recursion so it means you can parse expressions such as 
+1+2+3+4+5+...X, where X is the maximum stack size of V8.
+
+To know the default mximum stack size of V8 you can run `node --v8-options | grep stack-size`. If the default size is not enough for you grammar just use this option to extend the size. You can also try to rewrite your grammar in order to be less recursive.
 
 Then you can use the generated parser this way
 

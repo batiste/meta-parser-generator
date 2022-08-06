@@ -147,12 +147,12 @@ This is useful to more easily handle and differenciate your grammar rules:
 
 ```typescript
 // a function that handle both MATH grammar rules defined above
-function handle_MATH_node(node) {
+function handle_MATH_node(node: RuleNode) {
   const named = node.named
   // if there is an operator, we are dealing with sub rule 0
   if(named['operator']) {
     const left_recursion = handle_MATH_node(node.children[0])
-    console.log(`{left_recursion} {named['operator'].value} {named['num'].value}`)
+    console.log(`${left_recursion} ${named['operator'].value} ${named['num'].value}`)
   } else {
     console.log(named['num'].value)
   }

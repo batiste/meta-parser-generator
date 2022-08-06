@@ -67,8 +67,8 @@ const parser = require('./parser');
 const { tokensDefinition, grammar } = require('./generator');
 const { displayError } = require('meta-parser-generator');
 
-function parse(code) {
-  const tokens = parser.tokenize(tokensDefinition, code);
+function parse(input) {
+  const tokens = parser.tokenize(tokensDefinition, input);
   const ast = parser.parse(tokens);
   if (!ast.success) {
     displayError(tokens, tokensDefinition, grammar, ast);
@@ -84,10 +84,10 @@ console.log(ast)
 
 ```typescript
 interface ASTNode {
-    children: [ASTNode]  // list of children ASTNode
     stream_index: number // position of the first token for this rule in the token stream
     type: str            // name of the rule
     subRule: number      // index of this grammar rule in the subrule array
+    children: [ASTNode]  // list of children ASTNode
     named: {}            // named elements withing this rule, see named aliases 
 }
 ```

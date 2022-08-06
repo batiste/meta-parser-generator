@@ -136,9 +136,10 @@ To facilitate your work with the AST, you can name a rule or a token using a col
 ```
 
 Then in the corresponding `RuleNode` you will find the `math_operator` in the children, but also in the named object.
-This is useful so could can more easily handle and differenciate your rules:
+This is useful to more easily handle and differenciate your grammar rules:
 
 ```typescript
+// a function that handle both MATH grammar rules defined above
 function handle_MATH_node(node) {
   const named = node.named
   // if there is an operator, we are dealing with sub rule 0

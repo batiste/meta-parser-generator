@@ -83,12 +83,14 @@ console.log(ast)
 ### AST interface
 
 ```typescript
-interface ASTNode {
-    stream_index: number // position of the first token for this rule in the token stream
-    type: str            // name of the rule
-    subRule: number      // index of this grammar rule in the subrule array
-    children: [ASTNode]  // list of children ASTNode
-    named: {}            // named elements withing this rule, see named aliases 
+type ASTNode = RuleNode | Token
+
+interface RuleNode {
+    stream_index: number                // position of the first token for this rule in the token stream
+    type: str                           // name of the rule
+    subRule: number                     // index of this grammar rule in the subrule array
+    children: [ASTNode]                 // list of children, ASTNode or Token
+    named: { [key: string]: ASTNode; }  // named elements withing this rule, see named aliases 
 }
 ```
 

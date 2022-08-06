@@ -80,16 +80,29 @@ let ast = parse('9+10-190.3');
 console.log(ast)
 ```
 
-### AST shape
+### AST interface
 
 ```typescript
 interface ASTNode {
     children: [ASTNode]  // list of chilrend ASTNode
-    stream_index: number // position of the first token for this node in the token stream
-    name: str            // name of the rule or token
-    type: str            // name of the rule or token
-    subRule: number      // number of the grammar rule in the subrule
+    stream_index: number // position of the first token for this rule in the token stream
+    type: str            // name of the rule
+    subRule: number      // index of this grammar rule in the subrule array
     named: {}            // named elements
+}
+```
+
+At the leaf of the AST you will find the final tokens. They have a slightly different interface
+
+```typescript
+interface Token {
+    stream_index: number // position of the token in the token stream
+    type: str            // name of token
+    value: str           // the value of the token
+    len: number          // shortcut for value.length
+    lineStart: number    // line start position in the input
+    columnStart: number  // column start position in the input
+    start: number        // charater start position in the input 
 }
 ```
 

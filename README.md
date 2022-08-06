@@ -80,6 +80,19 @@ let ast = parse('9+10-190.3');
 console.log(ast)
 ```
 
+### AST shape
+
+```typescript
+interface ASTNode {
+    children: [ASTNode]  // list of chilrend ASTNode
+    stream_index: number // position of the first token for this node in the token stream
+    name: str            // name of the rule or token
+    type: str            // name of the rule or token
+    subRule: number      // number of the grammar rule in the subrule
+    named: {}            // named elements
+}
+```
+
 ### Errors
 
 The util function `displayError` will display detailed informations about a tokenizer or parsing error. The most likely

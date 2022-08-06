@@ -110,25 +110,26 @@ interface Token {
 
 There is 3 modifiers you can add at the end of a rule or token
 
-1. * is the {0,∞} repeating modifier 
-2. + is the {1,∞} repeating modifier
-3. ? is the {0,1} conditional modifier
+```
+* is the {0,∞} repeating modifier 
++ is the {1,∞} repeating modifier
+? is the {0,1} conditional modifier
+```
 
 #### Examples
 
 ```typescript
-['GLOBAL_STATEMENT', 'GLOBAL_STATEMENTS*', 'EOS']
-['newline', 'GLOBAL_STATEMENT', 'comment?'],
+['PREPOSITION', 'ADJECTIVE*', 'NAME']
 ```
 
 ### Named alias
 
-To exploit more easily the AST, you can mark a rule or a token with an alias by using a colon
+To facilitate your work with the AST, you can name a rule or a token with using a colon
 
 ```typescript
 'MATH': [
-  ['MATH', 'math_operator:operator', 'number:num'], // here the math_operator token is marked
-  ['number:num'],
+  ['MATH', 'math_operator:operator', 'number:num'], // here the math_operator and number token are named
+  ['number:num'],                                   // here only number is named
 ]
 ```
 
@@ -141,9 +142,9 @@ function handle_MATH_node(node) {
   // if there is an operator, we are dealing with sub rule 0
   if(named['operator']) {
     const left_recursion = handle_MATH_node(node.children[0])
-    console.log(`{left_recursion} {named['operator'].value} {named['num']}`)
+    console.log(`{left_recursion} {named['operator'].value} {named['num'].value}`)
   } else {
-    console.log(named['num'])
+    console.log(named['num'].value)
   }
 }
 ```

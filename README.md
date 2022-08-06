@@ -88,7 +88,7 @@ interface ASTNode {
     stream_index: number // position of the first token for this rule in the token stream
     type: str            // name of the rule
     subRule: number      // index of this grammar rule in the subrule array
-    named: {}            // named elements
+    named: {}            // named elements withing this rule, see named aliases 
 }
 ```
 
@@ -105,6 +105,49 @@ interface Token {
     start: number        // charater start position in the input 
 }
 ```
+
+### Modifiers
+
+There is 3 modifiers you can add at the end of a rule or token
+
+1. * is the {0,∞} repeating modifier 
+2. + is the {1,∞} repeating modifier
+3. ? is the {0,1} conditional modifier
+
+#### Examples
+
+```typescript
+['GLOBAL_STATEMENT', 'GLOBAL_STATEMENTS*', 'EOS']
+['newline', 'GLOBAL_STATEMENT', 'comment?'],
+```
+
+### Named alias
+
+To exploit more easily the AST, you can mark a rule or a token with an alias by using a colon
+
+```typescript
+'MATH': [
+  ['MATH', 'math_operator:operator', 'number:num'], // here the math_operator token is marked
+  ['number:num'],
+]
+```
+
+Then in the correspongding ASTNode you will find the `math_operator` in the children, but also in the named object.
+This is useful so could can more easily handle and differenciate your rules:
+
+```typescript
+function handle_MATH_node(node) {
+  const named = node.named
+  // if there is an operator, we are dealing with sub rule 0
+  if(named['operator']) {
+    const left_recursion = handle_MATH_node(node.children[0])
+    console.log(`{left_recursion} {named['operator'].value} {named['num']}`)
+  } else {
+    console.log(named['num'])
+  }
+}
+```
+
 
 ### Errors
 

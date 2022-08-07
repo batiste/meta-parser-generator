@@ -113,7 +113,7 @@ interface Token {
     len: number          // shortcut for value.length
     lineStart: number    // line start position in the input
     columnStart: number  // column start position in the input
-    start: number        // charater start position in the input 
+    start: number        // character start position in the input 
 }
 ```
 

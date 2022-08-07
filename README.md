@@ -37,12 +37,13 @@ const tokensDefinition = {
 const grammar = {
   // START is the convention keyword for the entry point of the grammar
   'START': [
-    // necessary to accept the firt line to not be a newline
+    // necessary to accept the first line be MATH
     ['MATH', 'LINE*', 'EOS'], // EOS is the End Of Stream token, added automatically by the tokenizer
     // * is the repeating modifier {0,∞}. Better than recursion as it does not use the call stack
     ['LINE*', 'EOS'],
   ],
   'LINE': [
+    // we define a line as always starting with a newline
     ['newline', 'MATH'],
     ['newline'],
   ],

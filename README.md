@@ -81,7 +81,7 @@ console.log(ast)
 
 ### How does generated parser works?
 
-Each grammar rule you write is transformed into a function, and the function call each other until the input is consumed. Therefor the JavaScript call stack is used by the generated parser. So if you design a very recursive grammar you might trigger a "Maximum call stack size exceeded" error for a large input. 
+Each grammar rule you write is transformed into a function, and those grammar functions call each other until the input parsing is sucessful. Therefor the JavaScript call stack is used by the generated parser. So if you design a very recursive grammar, you might trigger a "Maximum call stack size exceeded" error for a large input. 
 
 In our example `MATH` grammar rule above you have a left recursion. It means you can parse expressions such as 1+2+3+4+5+...X, where X is the maximum stack size of V8.
 

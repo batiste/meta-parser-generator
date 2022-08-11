@@ -5,7 +5,7 @@
   "main": "metaParserGenerator.js",
   "scripts": {
     "test": "jest --no-cache",
-    "ttest": "node ./tests/generateParser.js && jest --no-cache"
+    "gentest": "node ./tests/generateParser.js && jest --no-cache"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,6 @@
   },
   "homepage": "https://github.com/batiste/meta-parser-generator#readme",
   "devDependencies": {
-    "jest": "^24.9.0"
+    "jest": "^28.1.3"
   }
 }

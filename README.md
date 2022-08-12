@@ -4,10 +4,8 @@
 npm install meta-parser-generator
 ```
 
-Meta Parser Generator will help you generate an efficient parser using a grammar and a token definition.
-Meta programming is used to generate a single self contained parser file.
-
-This code has been extracted from https://github.com/batiste/blop-language
+Meta Parser Generator will help you generate an efficient parser using grammar and a token definition.
+Meta programming is used to generate a single self-contained parser file.
 
 ## Characteristics
 
@@ -81,13 +79,13 @@ console.log(ast)
 
 ### How does the generated parser work?
 
-Each grammar rule you write is transformed into a function, and those grammar functions call each other until the input parsing is sucessful. Therefor the JavaScript call stack is used by the generated parser. So if you design a very recursive grammar, you might trigger a "Maximum call stack size exceeded" error for a large input. 
+Each grammar rule you write is transformed into a function, and those grammar functions call each other until the input parsing is successful. Therefore, the JavaScript call stack is used by the generated parser. So, if you design a very recursive grammar, you might trigger a "Maximum call stack size exceeded" error for a large input.
 
-In our example `MATH` grammar rule above you have a left recursion. It means you can parse expressions such as 1+2+3+4+5+...X, where X is the maximum stack size of V8.
+In our case example, the `MATH` grammar rule above, you have a left recursion. It means you can parse expressions such as 1+2+3+4+5+...X, where X is the maximum stack size of V8.
 
-To know the default maximum stack size of V8 you can run `node --v8-options | grep stack-size`. If the default size is not enough for your grammar, use this option to extend the size. You can also try to rewrite your grammar in order to be less recursive.
+To find out the default maximum stack size of V8, run `node --v8-options | grep stack-size`. If the default size is not enough for your grammar, use this option to extend the size. You can also try to rewrite your grammar in order to be less recursive.
 
-Anything that can be handled by a modifier rather than recursion will not use the call stack and should be preffered.
+Anything that can be handled by a modifier rather than recursion will not use the call stack and should be preferred.
 
 ### AST interface
 
@@ -168,3 +166,7 @@ The util function `displayError` will display detailed informations about a toke
 is based on the first grammar rule found that consume the most token from the stream.
 
 <img src="/error.png" width="800">
+
+## Projects using this parser
+
+* The Blop language https://github.com/batiste/blop-language

@@ -54,6 +54,8 @@ const grammar = {
 };
 ```
 
+Then execute this script `node generate.js`
+
 ```
 // generate.js
 const { tokensDefinition, grammar } = require('./generator');

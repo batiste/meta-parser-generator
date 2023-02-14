@@ -22,6 +22,7 @@ Meta programming is used to generate a single self-contained parser file.
 This will generate a mathematical operation parser
   
 ```javascript
+// generator.js
 const { generateParser } = require('meta-parser-generator');
 const path = require('path');
 
@@ -51,7 +52,11 @@ const grammar = {
     ['number'],
   ],
 };
+```
 
+```
+// generate.js
+const { tokensDefinition, grammar } = require('./generator');
 // this generate the executable parser file
 generateParser(grammar, tokensDefinition, path.resolve(__dirname, './parser.js'));
 console.log('parser generated');

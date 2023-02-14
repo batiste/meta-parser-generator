@@ -56,7 +56,7 @@ const grammar = {
 
 Then execute this script `node generate.js`
 
-```
+```javascript
 // generate.js
 const { tokensDefinition, grammar } = require('./generator');
 // this generate the executable parser file

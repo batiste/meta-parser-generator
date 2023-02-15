@@ -1,7 +1,7 @@
 const parser = require('./parser');
 const { tokensDefinition } = require('./tokensDefinition');
 const { grammar } = require('./grammar');
-const { displayError } = require('../utils');
+const { displayError } = require('../dist/utils');
 
 function parse(code) {
   const tokens = parser.tokenize(tokensDefinition, code);

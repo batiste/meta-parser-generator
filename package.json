@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/batiste/meta-parser-generator#readme",
   "devDependencies": {
+    "@types/node": "^18.13.0",
     "jest": "^28.1.3"
   }
 }

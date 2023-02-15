@@ -1,3 +1,5 @@
+import { ASTNode, RuleNode, Token } from "./types";
+
 const RED = '\x1B[0;31m';
 const YELLOW = '\x1B[1;33m';
 const NC = '\x1B[0m';
@@ -10,14 +12,14 @@ function replaceInvisibleChars(v) {
   return v.replace(/[ ]/g, '␣');
 }
 
-function tokenPosition(token) {
-  const lineNumber = token.lineStart;
-  const charNumber = token.columnStart;
+function tokenPosition(token: Token) {
+  const lineNumber = token.line_start;
+  const charNumber = token.column_start;
   const end = charNumber + token.len;
   return { lineNumber, charNumber, end };
 }
 
-function streamContext(token, firstToken, stream) {
+function streamContext(token: Token, firstToken: Token, stream: [Token]) {
   const index = token.stream_index;
   const firstTokenIndex = firstToken.stream_index;
   const { lineNumber } = tokenPosition(token);
@@ -57,8 +59,8 @@ function streamContext(token, firstToken, stream) {
   return str;
 }
 
-function displayError(stream, tokensDefinition, grammar, bestFailure) {
-  const sub_rules = grammar[bestFailure.rule_name][bestFailure.sub_rule_index];
+function displayError(stream: [Token], tokensDefinition, grammar, bestFailure) {
+  const sub_rules = grammar[bestFailure.type][bestFailure.sub_rule_index];
   let rule = '';
   const { token } = bestFailure;
   const firstToken = bestFailure.first_token;
@@ -79,24 +81,27 @@ function displayError(stream, tokensDefinition, grammar, bestFailure) {
   throw new Error(`
   ${RED}Parser error at line ${positions.lineNumber + 1} char ${positions.charNumber} to ${positions.end} ${NC}
   Unexpected ${YELLOW}${replaceInvisibleChars(token.value)}${NC}
-  Best match was at rule ${bestFailure.rule_name}[${bestFailure.sub_rule_index}][${bestFailure.sub_rule_token_index}] ${rule}
+  Best match was at rule ${bestFailure.type}[${bestFailure.sub_rule_index}][${bestFailure.sub_rule_token_index}] ${rule}
   token "${YELLOW}${replaceInvisibleChars(token.value)}${NC}" (type:${token.type}) doesn't match rule item ${YELLOW}${failingToken}${NC}
   Context:
 ${streamContext(token, firstToken, stream)}
 `);
 }
 
-function printTree(node, sp) {
-  if (node.rule_name) {
-    console.log(`${sp}r ${node.rule_name}(${node.sub_rule_index})`);
+function isRule(node: any): node is RuleNode {
+  return typeof node.type === 'string' 
+}
+
+function printTree(node: ASTNode, sp) {
+  if(isRule(node)) {
+    console.log(`${sp}r ${node.type}(${node.sub_rule_index})`);
+    if (node.children) {
+      for (let i = 0; i < node.children.length; i++) {
+        printTree(node.children[i], `${sp}  `);
+      }
+    }
   } else {
     console.log(`${sp}t ${node.type} ${node.value}`);
-  }
-
-  if (node.children) {
-    for (let i = 0; i < node.children.length; i++) {
-      printTree(node.children[i], `${sp}  `);
-    }
   }
 }
 
@@ -112,11 +117,11 @@ function checkGrammarAndTokens(grammar, tokensDefinition) {
 function preprocessGrammar(rules) {
   return Object.keys(rules).reduce((accu, key) => {
     accu[key] = rules[key].map(
-      subRule => subRule.map((subRuleItem, index) => {
-        if (subRuleItem instanceof Function) {
-          return { function: true, value: subRuleItem };
+      sub_rule_index => sub_rule_index.map((sub_rule_indexItem, index) => {
+        if (sub_rule_indexItem instanceof Function) {
+          return { function: true, value: sub_rule_indexItem };
         }
-        const values = subRuleItem.split(':');
+        const values = sub_rule_indexItem.split(':');
         let optional = false;
         let repeatable = false;
         let leftRecursion = false;
@@ -144,10 +149,10 @@ function preprocessGrammar(rules) {
   }, {});
 }
 
-module.exports = {
+export {
   streamContext,
   preprocessGrammar,
   checkGrammarAndTokens,
   displayError,
   printTree,
-};
+}

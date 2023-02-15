@@ -1,7 +1,7 @@
 
-const fs = require('fs');
-// const path = require('path');
-const { preprocessGrammar, checkGrammarAndTokens } = require('./utils');
+import * as fs from 'fs';
+import { preprocessGrammar, checkGrammarAndTokens } from './utils'
+
 
 const recordFailure = `
 let best_failure;
@@ -62,7 +62,7 @@ function memoize_left_recur(name, func) {
 
 `;
 
-function generateTokenizer(tokenDef) {
+export function generateTokenizer(tokenDef) {
   const output = [];
   const keys = Object.keys(tokenDef);
   for (let i = 0; i < keys.length; i++) {
@@ -123,8 +123,8 @@ function generateTokenizer(tokenDef) {
         start: char,
         stream_index: index,
         len: candidate.length,
-        lineStart: line,
-        columnStart: column,
+        line_start: line,
+        column_start: column,
       };
       const lines = candidate.split('\\n');
       if (lines.length > 1) {
@@ -164,7 +164,7 @@ function generateTokenizer(tokenDef) {
   return output;
 }
 
-function generateSubRule(name, index, subRule, tokensDef, debug) {
+function generatesub_rule_index(name, index, sub_rule_index, tokensDef, debug) {
   const output = [];
   output.push(`let ${name}_${index} = (stream, index) => {`);
   let i = 0;
@@ -173,9 +173,9 @@ function generateSubRule(name, index, subRule, tokensDef, debug) {
   output.push('  const named = {};');
   output.push(`  const node = {
     children, stream_index: index, name: '${name}',
-    subRule: ${index}, type: '${name}', named,
+    sub_rule_index: ${index}, type: '${name}', named,
   };`);
-  subRule.forEach((rule) => {
+  sub_rule_index.forEach((rule) => {
     // terminal rule
     if (tokensDef[rule.value] || rule.value === 'EOS') {
       debug ? output.push('  console.log(i, stream[i])') : null;
@@ -197,7 +197,7 @@ function generateSubRule(name, index, subRule, tokensDef, debug) {
   if (stream[i].type !== '${rule.value}') {
     if (i >= best_failure_index) {
       const failure = {
-        rule_name: '${name}', sub_rule_index: ${index},
+        type: '${name}', sub_rule_index: ${index},
         sub_rule_stream_index: i - index, sub_rule_token_index: ${i},
         stream_index: i, token: stream[i], first_token: stream[index], success: false,
       };
@@ -245,7 +245,7 @@ function generateSubRule(name, index, subRule, tokensDef, debug) {
   output.push('  node.success = i === stream.length; node.last_index = i;');
   output.push('  return node;');
   output.push('};');
-  if (subRule[0].leftRecursion) {
+  if (sub_rule_index[0].leftRecursion) {
     output.push(`${name}_${index} = memoize_left_recur('${name}_${index}', ${name}_${index});`);
   } else {
     output.push(`${name}_${index} = memoize('${name}_${index}', ${name}_${index});`);
@@ -254,7 +254,7 @@ function generateSubRule(name, index, subRule, tokensDef, debug) {
   return output;
 }
 
-function generate(grammar, tokensDef, debug) {
+export function generate(grammar, tokensDef, debug) {
   let output = [];
   checkGrammarAndTokens(grammar, tokensDef);
   const newGrammar = preprocessGrammar(grammar);
@@ -265,8 +265,8 @@ function generate(grammar, tokensDef, debug) {
   entries.forEach((key) => {
     let i = 0;
     const metaSub = [];
-    newGrammar[key].forEach((subRule) => {
-      output = output.concat(generateSubRule(key, i, subRule, tokensDef, debug));
+    newGrammar[key].forEach((sub_rule_index) => {
+      output = output.concat(generatesub_rule_index(key, i, sub_rule_index, tokensDef, debug));
       metaSub.push(`${key}_${i}`);
       i++;
     });
@@ -295,18 +295,7 @@ function generate(grammar, tokensDef, debug) {
   return output;
 }
 
-function generateParser(grammar, tokensDefinition, filename) {
+export function generateParser(grammar, tokensDefinition, filename) {
   fs.writeFileSync(filename,
-    generate(grammar, tokensDefinition, false).join('\n'), (err) => {
-      if (err) {
-        // eslint-disable-next-line no-console
-        console.log(err);
-      }
-    });
+    generate(grammar, tokensDefinition, false).join('\n'));
 }
-
-module.exports = {
-  generateParser,
-  generate,
-  generateTokenizer,
-};

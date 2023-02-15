@@ -64,7 +64,7 @@ let START_0 = (stream, index) => {
   const named = {};
   const node = {
     children, stream_index: index, name: 'START',
-    subRule: 0, type: 'START', named,
+    sub_rule_index: 0, type: 'START', named,
   };
   const _rule_0 = GLOBAL_STATEMENT(stream, i);
   if (!_rule_0) return false;
@@ -80,7 +80,7 @@ let START_0 = (stream, index) => {
   if (stream[i].type !== 'EOS') {
     if (i >= best_failure_index) {
       const failure = {
-        rule_name: 'START', sub_rule_index: 0,
+        type: 'START', sub_rule_index: 0,
         sub_rule_stream_index: i - index, sub_rule_token_index: 2,
         stream_index: i, token: stream[i], first_token: stream[index], success: false,
       };
@@ -102,7 +102,7 @@ let START_1 = (stream, index) => {
   const named = {};
   const node = {
     children, stream_index: index, name: 'START',
-    subRule: 1, type: 'START', named,
+    sub_rule_index: 1, type: 'START', named,
   };
   let _rule_0 = GLOBAL_STATEMENTS(stream, i);
   while (_rule_0) {
@@ -114,7 +114,7 @@ let START_1 = (stream, index) => {
   if (stream[i].type !== 'EOS') {
     if (i >= best_failure_index) {
       const failure = {
-        rule_name: 'START', sub_rule_index: 1,
+        type: 'START', sub_rule_index: 1,
         sub_rule_stream_index: i - index, sub_rule_token_index: 1,
         stream_index: i, token: stream[i], first_token: stream[index], success: false,
       };
@@ -140,13 +140,13 @@ let GLOBAL_STATEMENTS_0 = (stream, index) => {
   const named = {};
   const node = {
     children, stream_index: index, name: 'GLOBAL_STATEMENTS',
-    subRule: 0, type: 'GLOBAL_STATEMENTS', named,
+    sub_rule_index: 0, type: 'GLOBAL_STATEMENTS', named,
   };
 
   if (stream[i].type !== 'newline') {
     if (i >= best_failure_index) {
       const failure = {
-        rule_name: 'GLOBAL_STATEMENTS', sub_rule_index: 0,
+        type: 'GLOBAL_STATEMENTS', sub_rule_index: 0,
         sub_rule_stream_index: i - index, sub_rule_token_index: 0,
         stream_index: i, token: stream[i], first_token: stream[index], success: false,
       };
@@ -172,13 +172,13 @@ let GLOBAL_STATEMENTS_1 = (stream, index) => {
   const named = {};
   const node = {
     children, stream_index: index, name: 'GLOBAL_STATEMENTS',
-    subRule: 1, type: 'GLOBAL_STATEMENTS', named,
+    sub_rule_index: 1, type: 'GLOBAL_STATEMENTS', named,
   };
 
   if (stream[i].type !== 'newline') {
     if (i >= best_failure_index) {
       const failure = {
-        rule_name: 'GLOBAL_STATEMENTS', sub_rule_index: 1,
+        type: 'GLOBAL_STATEMENTS', sub_rule_index: 1,
         sub_rule_stream_index: i - index, sub_rule_token_index: 0,
         stream_index: i, token: stream[i], first_token: stream[index], success: false,
       };
@@ -204,7 +204,7 @@ let GLOBAL_STATEMENT_0 = (stream, index) => {
   const named = {};
   const node = {
     children, stream_index: index, name: 'GLOBAL_STATEMENT',
-    subRule: 0, type: 'GLOBAL_STATEMENT', named,
+    sub_rule_index: 0, type: 'GLOBAL_STATEMENT', named,
   };
   const _rule_0 = math_operation(stream, i);
   if (!_rule_0) return false;
@@ -225,7 +225,7 @@ let math_operation_0 = (stream, index) => {
   const named = {};
   const node = {
     children, stream_index: index, name: 'math_operation',
-    subRule: 0, type: 'math_operation', named,
+    sub_rule_index: 0, type: 'math_operation', named,
   };
   const _rule_0 = math_operation(stream, i);
   if (!_rule_0) return false;
@@ -235,7 +235,7 @@ let math_operation_0 = (stream, index) => {
   if (stream[i].type !== 'math_operator') {
     if (i >= best_failure_index) {
       const failure = {
-        rule_name: 'math_operation', sub_rule_index: 0,
+        type: 'math_operation', sub_rule_index: 0,
         sub_rule_stream_index: i - index, sub_rule_token_index: 1,
         stream_index: i, token: stream[i], first_token: stream[index], success: false,
       };
@@ -249,7 +249,7 @@ let math_operation_0 = (stream, index) => {
   if (stream[i].type !== 'number') {
     if (i >= best_failure_index) {
       const failure = {
-        rule_name: 'math_operation', sub_rule_index: 0,
+        type: 'math_operation', sub_rule_index: 0,
         sub_rule_stream_index: i - index, sub_rule_token_index: 2,
         stream_index: i, token: stream[i], first_token: stream[index], success: false,
       };
@@ -271,13 +271,13 @@ let math_operation_1 = (stream, index) => {
   const named = {};
   const node = {
     children, stream_index: index, name: 'math_operation',
-    subRule: 1, type: 'math_operation', named,
+    sub_rule_index: 1, type: 'math_operation', named,
   };
 
   if (stream[i].type !== 'number') {
     if (i >= best_failure_index) {
       const failure = {
-        rule_name: 'math_operation', sub_rule_index: 1,
+        type: 'math_operation', sub_rule_index: 1,
         sub_rule_stream_index: i - index, sub_rule_token_index: 0,
         stream_index: i, token: stream[i], first_token: stream[index], success: false,
       };
@@ -390,8 +390,8 @@ function tokenize(tokenDef, input) {
         start: char,
         stream_index: index,
         len: candidate.length,
-        lineStart: line,
-        columnStart: column,
+        line_start: line,
+        column_start: column,
       };
       const lines = candidate.split('\n');
       if (lines.length > 1) {

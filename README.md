@@ -99,26 +99,26 @@ Anything that can be handled by a modifier rather than recursion will not use th
 ```typescript
 type ASTNode = RuleNode | Token
 
-interface RuleNode {
-    stream_index: number                // position of the first token for this rule in the token stream
-    type: str                           // name of the rule
-    subRule: number                     // index of this grammar rule in the subrule array
-    children: [ASTNode]                 // list of children
-    named: { [key: string]: ASTNode; }  // named elements withing this rule, see named aliases 
+export interface RuleNode {
+  type: string                        // name of the rule
+  sub_rule_index: number              // index of this grammar rule in the sub_rule_index array
+  stream_index: number                // position of the first token for this rule in the token stream
+  children: [ASTNode]                 // list of children
+  named: { [key: string]: ASTNode; }  // named elements withing this rule, see named aliases 
 }
 ```
 
 At the leaf of the AST you will find the final tokens. They have a slightly different interface
 
 ```typescript
-interface Token {
-    stream_index: number // position of the token in the token stream
-    type: str            // name of token
-    value: str           // the value of the token
-    len: number          // shortcut for value.length
-    lineStart: number    // line start position in the input
-    columnStart: number  // column start position in the input
-    start: number        // character start position in the input 
+export interface Token {
+  stream_index: number // position of the token in the token stream
+  type: string         // name of token
+  value: string        // the value of the token
+  len: number          // shortcut for value.length
+  line_start: number   // line start position in the input
+  column_start: number // column start position in the input
+  start: number        // character start position in the input 
 }
 ```
 

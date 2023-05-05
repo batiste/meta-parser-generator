@@ -100,9 +100,9 @@ Anything that can be handled by a modifier rather than recursion will not use th
 type ASTNode = RuleNode | Token
 
 export interface RuleNode {
+  stream_index: number                // position of the first token for this rule in the token stream
   type: string                        // name of the rule
   sub_rule_index: number              // index of this grammar rule in the sub_rule_index array
-  stream_index: number                // position of the first token for this rule in the token stream
   children: [ASTNode]                 // list of children
   named: { [key: string]: ASTNode; }  // named elements withing this rule, see named aliases 
 }

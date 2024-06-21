@@ -144,8 +144,9 @@ To facilitate your work with the AST, you can name a rule or a token using a col
 
 ```typescript
 'MATH': [
-  ['MATH', 'math_operator:operator', 'number:num'], // math_operator and number token are named
-  ['number:num'],                                   // here only number is named
+  ['MATH', 'math_operator:operator', 'number:num'], // tokens math_operator and number
+                                                    // are named with operator and num
+  ['number:num'],                                   // here only number is named with num
 ]
 ```
 

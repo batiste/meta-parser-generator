@@ -9,16 +9,23 @@ let best_failure;
 let best_failure_array = [];
 let best_failure_index = 0;
 
+// Records parsing failures at the deepest position reached
+// Collects all failures at the same position to potentially show "expected: X, Y, or Z"
 function record_failure(failure, i) {
+  // New deepest position reached - reset tracking
   if (i > best_failure_index) {
     best_failure_array = [];
+    best_failure = null;
+    best_failure_index = i;
   }
-  if (best_failure_array.length === 0) {
+  // Record this failure
+  best_failure_array.push(failure);
+  // Keep first failure as primary for error messages
+  if (!best_failure) {
     best_failure = failure;
   }
-  best_failure_array.push(failure);
-  best_failure_index = i;
 }
+
 
 // Memoization cache for regular rules
 // Note: For very large inputs, this cache can grow to O(n * m) where:

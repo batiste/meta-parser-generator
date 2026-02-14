@@ -1,10 +1,10 @@
-import { ASTNode, RuleNode, Token } from "./types";
+import { ASTNode, RuleNode, Token, TokensDefinition, Grammar, ProcessedGrammar, ParseFailure } from "./types";
 
 const RED = '\x1B[0;31m';
 const YELLOW = '\x1B[1;33m';
 const NC = '\x1B[0m';
 
-function replaceInvisibleChars(v) {
+function replaceInvisibleChars(v: string): string {
   v = v.replace(/\r/g, '⏎\r');
   v = v.replace(/\n/g, '⏎\n');
   v = v.replace(/\t/g, '⇥');
@@ -19,7 +19,7 @@ function tokenPosition(token: Token) {
   return { lineNumber, charNumber, end };
 }
 
-function streamContext(token: Token, firstToken: Token, stream: [Token]) {
+function streamContext(token: Token, firstToken: Token, stream: Token[]): string {
   const index = token.stream_index;
   const firstTokenIndex = firstToken.stream_index;
   const { lineNumber } = tokenPosition(token);
@@ -28,7 +28,7 @@ function streamContext(token: Token, firstToken: Token, stream: [Token]) {
   let streamIndex = 0;
   let str = NC;
 
-  function char(v) {
+  function char(v: string): string {
     if (streamIndex === index) {
       return RED + replaceInvisibleChars(v) + NC;
     }
@@ -59,7 +59,14 @@ function streamContext(token: Token, firstToken: Token, stream: [Token]) {
   return str;
 }
 
-function displayError(stream: [Token], tokensDefinition, grammar, bestFailure) {
+/**
+ * Displays a formatted error message for parsing failures
+ * @param stream - Token stream
+ * @param tokensDefinition - Token definitions
+ * @param grammar - Grammar rules
+ * @param bestFailure - The parse failure with details
+ */
+function displayError(stream: Token[], tokensDefinition: TokensDefinition, grammar: Grammar, bestFailure: ParseFailure): never {
   const sub_rules = grammar[bestFailure.type][bestFailure.sub_rule_index];
   let rule = '';
   const { token } = bestFailure;
@@ -69,7 +76,7 @@ function displayError(stream: [Token], tokensDefinition, grammar, bestFailure) {
   for (let i = 0; i < sub_rules.length; i++) {
     let sr = sub_rules[i];
     if (tokensDefinition[sr] && tokensDefinition[sr].verbose) {
-      sr = tokensDefinition[sr].verbose.replace(/\s/g, '-');
+      sr = tokensDefinition[sr].verbose!.replace(/\s/g, '-');
     }
     if (i === bestFailure.sub_rule_token_index) {
       rule += `${RED}${sr}${NC} `;
@@ -92,7 +99,12 @@ function isRule(node: any): node is RuleNode {
   return typeof node.type === 'string' 
 }
 
-function printTree(node: ASTNode, sp) {
+/**
+ * Prints the AST tree structure to console
+ * @param node - Root AST node to print
+ * @param sp - Spacing/indentation string
+ */
+function printTree(node: ASTNode, sp: string): void {
   if(isRule(node)) {
     console.log(`${sp}r ${node.type}(${node.sub_rule_index})`);
     if (node.children) {
@@ -105,7 +117,12 @@ function printTree(node: ASTNode, sp) {
   }
 }
 
-function checkGrammarAndTokens(grammar, tokensDefinition) {
+/**
+ * Validates that grammar and token definitions don't have overlapping keys
+ * @param grammar - Grammar rules
+ * @param tokensDefinition - Token definitions
+ */
+function checkGrammarAndTokens(grammar: Grammar, tokensDefinition: TokensDefinition): void {
   const gkeys = Object.keys(grammar);
   const tkeys = Object.keys(tokensDefinition);
   const intersection = gkeys.filter(n => tkeys.indexOf(n) > -1);
@@ -114,14 +131,19 @@ function checkGrammarAndTokens(grammar, tokensDefinition) {
   }
 }
 
-function preprocessGrammar(rules) {
-  return Object.keys(rules).reduce((accu, key) => {
+/**
+ * Preprocesses grammar rules to extract modifiers and aliases
+ * @param rules - Raw grammar rules
+ * @returns Processed grammar with parsed modifiers and metadata
+ */
+function preprocessGrammar(rules: Grammar): ProcessedGrammar {
+  return Object.keys(rules).reduce((accu: ProcessedGrammar, key) => {
     accu[key] = rules[key].map(
-      sub_rule_index => sub_rule_index.map((sub_rule_indexItem, index) => {
-        if (sub_rule_indexItem instanceof Function) {
-          return { function: true, value: sub_rule_indexItem };
+      (ruleItems) => ruleItems.map((ruleItem, index) => {
+        if (typeof ruleItem === 'function') {
+          return { function: true, value: ruleItem as any, optional: false, repeatable: false, leftRecursion: false };
         }
-        const values = sub_rule_indexItem.split(':');
+        const values = ruleItem.split(':');
         let optional = false;
         let repeatable = false;
         let leftRecursion = false;

@@ -405,7 +405,7 @@ function tokenize(tokenDef, input) {
       stream.push(lastToken);
       index++;
       char += candidate.length;
-      input = input.substr(candidate.length);
+      input = input.slice(candidate.length);
     } else {
       if (stream.length === 0) {
         throw new Error('Tokenizer error: total match failure');
@@ -437,7 +437,10 @@ module.exports = {
     cacheR = {};
     const result = START(stream, 0);
     if (!result) {
-      return best_failure;
+      return {
+        ...best_failure,
+        best_failure_array, 
+      }
     }
     return result;
   },

@@ -19,3 +19,37 @@ export interface Token {
   column_start: number // column start position in the input
   start: number        // character start position in the input 
 }
+
+export interface TokenDefinition {
+  str?: string;
+  reg?: RegExp;
+  func?: (input: string, stream: Token[]) => string | undefined;
+  verbose?: string;
+}
+
+export type TokensDefinition = Record<string, TokenDefinition>;
+
+export type Grammar = Record<string, string[][]>;
+
+export interface ProcessedRule {
+  value: string;
+  alias?: string;
+  optional: boolean;
+  repeatable: boolean;
+  leftRecursion: boolean;
+  function?: boolean;
+}
+
+export type ProcessedGrammar = Record<string, ProcessedRule[][]>;
+
+export interface ParseFailure {
+  type: string;
+  sub_rule_index: number;
+  sub_rule_stream_index: number;
+  sub_rule_token_index: number;
+  stream_index: number;
+  token: Token;
+  first_token: Token;
+  success: false;
+  best_failure_array?: ParseFailure[];
+}

@@ -1,6 +1,7 @@
 
 import * as fs from 'fs';
-import { preprocessGrammar, checkGrammarAndTokens } from './utils'
+import { preprocessGrammar, checkGrammarAndTokens } from './utils';
+import { TokensDefinition, Grammar, ProcessedRule } from './types';
 
 
 const recordFailure = `
@@ -62,8 +63,13 @@ function memoize_left_recur(name, func) {
 
 `;
 
-export function generateTokenizer(tokenDef) {
-  const output = [];
+/**
+ * Generates the tokenizer function code as an array of strings
+ * @param tokenDef - Token definitions mapping token names to patterns
+ * @returns Array of code lines for the tokenizer
+ */
+export function generateTokenizer(tokenDef: TokensDefinition): string[] {
+  const output: string[] = [];
   const keys = Object.keys(tokenDef);
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
@@ -138,7 +144,7 @@ export function generateTokenizer(tokenDef) {
       stream.push(lastToken);
       index++;
       char += candidate.length;
-      input = input.substr(candidate.length);
+      input = input.slice(candidate.length);
     } else {
       if (stream.length === 0) {
         throw new Error('Tokenizer error: total match failure');
@@ -164,8 +170,23 @@ export function generateTokenizer(tokenDef) {
   return output;
 }
 
-function generatesub_rule_index(name, index, sub_rule_index, tokensDef, debug) {
-  const output = [];
+/**
+ * Generates code for a specific grammar rule alternative
+ * @param name - Name of the grammar rule
+ * @param index - Index of this alternative in the rule
+ * @param ruleItems - Array of rule items (tokens and sub-rules) in this alternative
+ * @param tokensDef - Token definitions
+ * @param debug - Whether to include debug logging
+ * @returns Array of code lines for this rule function
+ */
+function generatesub_rule_index(
+  name: string,
+  index: number,
+  ruleItems: ProcessedRule[],
+  tokensDef: TokensDefinition,
+  debug: boolean
+): string[] {
+  const output: string[] = [];
   output.push(`let ${name}_${index} = (stream, index) => {`);
   let i = 0;
   output.push('  let i = index;');
@@ -175,7 +196,7 @@ function generatesub_rule_index(name, index, sub_rule_index, tokensDef, debug) {
     children, stream_index: index, name: '${name}',
     sub_rule_index: ${index}, type: '${name}', named,
   };`);
-  sub_rule_index.forEach((rule) => {
+  ruleItems.forEach((rule) => {
     // terminal rule
     if (tokensDef[rule.value] || rule.value === 'EOS') {
       debug ? output.push('  console.log(i, stream[i])') : null;
@@ -245,7 +266,7 @@ function generatesub_rule_index(name, index, sub_rule_index, tokensDef, debug) {
   output.push('  node.success = i === stream.length; node.last_index = i;');
   output.push('  return node;');
   output.push('};');
-  if (sub_rule_index[0].leftRecursion) {
+  if (ruleItems[0].leftRecursion) {
     output.push(`${name}_${index} = memoize_left_recur('${name}_${index}', ${name}_${index});`);
   } else {
     output.push(`${name}_${index} = memoize('${name}_${index}', ${name}_${index});`);
@@ -254,8 +275,15 @@ function generatesub_rule_index(name, index, sub_rule_index, tokensDef, debug) {
   return output;
 }
 
-export function generate(grammar, tokensDef, debug) {
-  let output = [];
+/**
+ * Generates the complete parser code from grammar and token definitions
+ * @param grammar - Grammar rules defining the language structure
+ * @param tokensDef - Token definitions mapping token names to patterns
+ * @param debug - Whether to include debug logging in generated code
+ * @returns Array of code lines for the complete parser
+ */
+export function generate(grammar: Grammar, tokensDef: TokensDefinition, debug: boolean): string[] {
+  let output: string[] = [];
   checkGrammarAndTokens(grammar, tokensDef);
   const newGrammar = preprocessGrammar(grammar);
   const entries = Object.keys(newGrammar);
@@ -264,9 +292,9 @@ export function generate(grammar, tokensDef, debug) {
   output.push(recordFailure);
   entries.forEach((key) => {
     let i = 0;
-    const metaSub = [];
-    newGrammar[key].forEach((sub_rule_index) => {
-      output = output.concat(generatesub_rule_index(key, i, sub_rule_index, tokensDef, debug));
+    const metaSub: string[] = [];
+    newGrammar[key].forEach((ruleItems) => {
+      output = output.concat(generatesub_rule_index(key, i, ruleItems, tokensDef, debug));
       metaSub.push(`${key}_${i}`);
       i++;
     });
@@ -285,7 +313,10 @@ export function generate(grammar, tokensDef, debug) {
     cacheR = {};
     const result = START(stream, 0);
     if (!result) {
-      return best_failure;
+      return {
+        ...best_failure,
+        best_failure_array, 
+      }
     }
     return result;
   },
@@ -295,7 +326,13 @@ export function generate(grammar, tokensDef, debug) {
   return output;
 }
 
-export function generateParser(grammar, tokensDefinition, filename) {
+/**
+ * Generates a parser file from grammar and token definitions
+ * @param grammar - Grammar rules defining the language structure
+ * @param tokensDefinition - Token definitions mapping token names to patterns
+ * @param filename - Output path for the generated parser file
+ */
+export function generateParser(grammar: Grammar, tokensDefinition: TokensDefinition, filename: string): void {
   fs.writeFileSync(filename,
     generate(grammar, tokensDefinition, false).join('\n'));
 }

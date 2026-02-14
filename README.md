@@ -9,13 +9,31 @@ Meta programming is used to generate a single self-contained parser file.
 
 ## Characteristics
 
-  * LL parser (Left to Right parser), arbitrary look ahead
-  * Direct Left recursion support (no indirect)
+  * PEG parser (Parsing Expression Grammar) with ordered choice
+  * Packrat parsing with memoization for linear time complexity
+  * Direct left recursion support using Guido van Rossum's algorithm
   * Parser code is generated from a grammar
-  * Good parsing performance (provided your grammar is efficient)
-  * Decent error reporting on parsing error
-  * Memoization
-  * Small source code (~500 lines of code), no dependencies
+  * Good parsing performance (O(n) with memoization)
+  * Excellent error reporting with context
+  * Small source code (~600 lines of code), no dependencies
+  
+### Important: Grammar Order Matters
+
+Unlike LL or LR parsers, PEG parsers use **ordered choice**. The first matching alternative is selected, and no backtracking occurs across alternatives. This means:
+
+```javascript
+// This grammar will NEVER match 'number' because 'name' matches first!
+'VALUE': [
+  ['name'],    // matches ANY identifier including '123abc'
+  ['number'],  // NEVER reached if name is defined as /^[\w]+/
+]
+
+// Correct order: more specific rules first
+'VALUE': [
+  ['number'],  // try number first
+  ['name'],    // then try name
+]
+```
   
 ## How to generate and use a parser
 
@@ -86,13 +104,21 @@ console.log(ast)
 
 ### How does the generated parser work?
 
-Each grammar rule you write is transformed into a function, and those grammar functions call each other until the input parsing is successful. Therefore, the JavaScript call stack is used by the generated parser. So, if you design a very recursive grammar, you might trigger a "Maximum call stack size exceeded" error for a large input.
+Each grammar rule you write is transformed into a function, and those grammar functions call each other until the input parsing is successful. The parser uses:
 
-In our case example, the `MATH` grammar rule above, you have a left recursion. It means you can parse expressions such as 1+2+3+4+5+...X, where X is the maximum stack size of V8.
+1. **PEG Ordered Choice**: For each rule with multiple alternatives, tries them in order and returns the first match
+2. **Packrat Parsing**: Memoization prevents re-parsing the same position, guaranteeing O(n) time complexity
+3. **Left Recursion Handling**: Uses a special memoization strategy based on Guido van Rossum's algorithm
 
-To find out the default maximum stack size of V8, run `node --v8-options | grep stack-size`. If the default size is not enough for your grammar, use this option to extend the size. You can also try to rewrite your grammar in order to be less recursive.
+The JavaScript call stack is used by the generated parser. So, if you design a very recursive grammar, you might trigger a "Maximum call stack size exceeded" error for a large input.
 
-Anything that can be handled by a modifier rather than recursion will not use the call stack and should be preferred.
+In our example, the `MATH` grammar rule has left recursion, allowing you to parse expressions like 1+2+3+4+5+...X, where X is limited by V8's stack size.
+
+To find out the default maximum stack size of V8, run `node --v8-options | grep stack-size`. If the default size is not enough, you can extend it or rewrite your grammar.
+
+**Best practice**: Use modifiers (`*`, `+`, `?`) instead of recursion when possible - they don't use the call stack and handle large inputs better.
+
+**Note**: For very large files, the memoization cache can grow significantly. The parser clears the cache between parse calls, but memory usage during parsing is proportional to input size × grammar complexity.
 
 ### AST interface
 

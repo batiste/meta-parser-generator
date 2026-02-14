@@ -16,6 +16,10 @@ function record_failure(failure, i) {
   best_failure_index = i;
 }
 
+// Memoization cache for regular rules
+// Note: For very large inputs, this cache can grow to O(n * m) where:
+// n = input size, m = number of grammar rules
+// Cache is cleared between parse() calls to prevent memory leaks
 let cache = {};
 
 function memoize(name, func) {
@@ -31,6 +35,7 @@ function memoize(name, func) {
   };
 }
 
+// Separate cache for left-recursive rules
 let cacheR = {};
 
 // based on https://medium.com/@gvanrossum_83706/left-recursive-peg-grammars-65dab3c580e1
@@ -297,75 +302,75 @@ function math_operation(stream, index) {
   return math_operation_0(stream, index)
     || math_operation_1(stream, index);
 }
-function _tokenize(tokenDef, input, stream) {
+function _tokenize(tokenDef, input, char, stream) {
   let match;
-  match = input.match(tokenDef.number.reg);
+  match = input.substring(char).match(tokenDef.number.reg);
   if (match !== null) {
     return [match[0], 'number'];
   }
-  match = input.match(tokenDef.comment.reg);
+  match = input.substring(char).match(tokenDef.comment.reg);
   if (match !== null) {
     return [match[0], 'comment'];
   }
-  match = input.match(tokenDef.multiline_comment.reg);
+  match = input.substring(char).match(tokenDef.multiline_comment.reg);
   if (match !== null) {
     return [match[0], 'multiline_comment'];
   }
-  if (input.startsWith(',')) {
+  if (input.substr(char, 1) === ',') {
     return [',', ','];
   }
-  if (input.startsWith('.')) {
+  if (input.substr(char, 1) === '.') {
     return ['.', '.'];
   }
-  if (input.startsWith('(')) {
+  if (input.substr(char, 1) === '(') {
     return ['(', '('];
   }
-  if (input.startsWith(')')) {
+  if (input.substr(char, 1) === ')') {
     return [')', ')'];
   }
-  if (input.startsWith('{')) {
+  if (input.substr(char, 1) === '{') {
     return ['{', '{'];
   }
-  if (input.startsWith('}')) {
+  if (input.substr(char, 1) === '}') {
     return ['}', '}'];
   }
-  if (input.startsWith('>')) {
+  if (input.substr(char, 1) === '>') {
     return ['>', '>'];
   }
-  if (input.startsWith('<')) {
+  if (input.substr(char, 1) === '<') {
     return ['<', '<'];
   }
-  match = input.match(tokenDef.name.reg);
+  match = input.substring(char).match(tokenDef.name.reg);
   if (match !== null) {
     return [match[0], 'name'];
   }
-  match = input.match(tokenDef.math_operator.reg);
+  match = input.substring(char).match(tokenDef.math_operator.reg);
   if (match !== null) {
     return [match[0], 'math_operator'];
   }
-  if (input.startsWith('!')) {
+  if (input.substr(char, 1) === '!') {
     return ['!', 'unary'];
   }
-  if (input.startsWith('=')) {
+  if (input.substr(char, 1) === '=') {
     return ['=', '='];
   }
-  if (input.startsWith(':')) {
+  if (input.substr(char, 1) === ':') {
     return [':', 'colon'];
   }
-  if (input.startsWith(`
-`)) {
+  if (input.substr(char, 1) === `
+`) {
     return [`
 `, 'newline'];
   }
-  match = tokenDef.str.func(input, stream);
+  match = tokenDef.str.func(input.substring(char), stream);
   if (match !== undefined) {
     return [match, 'str'];
   }
-  match = tokenDef.w.func(input, stream);
+  match = tokenDef.w.func(input.substring(char), stream);
   if (match !== undefined) {
     return [match, 'w'];
   }
-  match = input.match(tokenDef.W.reg);
+  match = input.substring(char).match(tokenDef.W.reg);
   if (match !== null) {
     return [match[0], 'W'];
   }
@@ -373,6 +378,7 @@ function _tokenize(tokenDef, input, stream) {
 }
 function tokenize(tokenDef, input) {
   const stream = [];
+  const originalInput = input;
   let lastToken;
   let key;
   let candidate = null;
@@ -382,40 +388,41 @@ function tokenize(tokenDef, input) {
   let line = 0;
   let column = 0;
   while (char < len) {
-    [candidate, key] = _tokenize(tokenDef, input, stream);
+    [candidate, key] = _tokenize(tokenDef, originalInput, char, stream);
     if (candidate !== null) {
+      const candidateLen = candidate.length;
       lastToken = {
         type: key,
         value: candidate,
         start: char,
         stream_index: index,
-        len: candidate.length,
+        len: candidateLen,
         line_start: line,
         column_start: column,
       };
-      const lines = candidate.split('\n');
-      if (lines.length > 1) {
+      // Only split if there might be newlines (optimization)
+      if (candidate.indexOf('\n') !== -1) {
+        const lines = candidate.split('\n');
         line += lines.length - 1;
         column = lines[lines.length - 1].length;
       } else {
-        column += candidate.length;
+        column += candidateLen;
       }
       lastToken.lineEnd = line;
       lastToken.columnEnd = column;
       stream.push(lastToken);
       index++;
-      char += candidate.length;
-      input = input.slice(candidate.length);
+      char += candidateLen;
     } else {
       if (stream.length === 0) {
         throw new Error('Tokenizer error: total match failure');
       }
       if (lastToken) {
-        lastToken.pointer += lastToken.value.length;
+        lastToken.pointer += lastToken.len;
       }
-      let msg = `Tokenizer error, no matching token found for ${input.slice(0, 26)}`;
+      let msg = `Tokenizer error, no matching token found for ${originalInput.slice(char, char + 26)}`;
       if (lastToken) {
-        msg += `Before token of type ${lastToken.type}: ${lastToken.value}`;
+        msg += ` After token of type ${lastToken.type}: ${lastToken.value}`;
       }
       const error = new Error(msg);
       error.token = lastToken;

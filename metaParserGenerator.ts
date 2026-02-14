@@ -20,6 +20,10 @@ function record_failure(failure, i) {
   best_failure_index = i;
 }
 
+// Memoization cache for regular rules
+// Note: For very large inputs, this cache can grow to O(n * m) where:
+// n = input size, m = number of grammar rules
+// Cache is cleared between parse() calls to prevent memory leaks
 let cache = {};
 
 function memoize(name, func) {
@@ -35,6 +39,7 @@ function memoize(name, func) {
   };
 }
 
+// Separate cache for left-recursive rules
 let cacheR = {};
 
 // based on https://medium.com/@gvanrossum_83706/left-recursive-peg-grammars-65dab3c580e1
@@ -78,28 +83,29 @@ export function generateTokenizer(tokenDef: TokensDefinition): string[] {
     }
   }
 
-  output.push('function _tokenize(tokenDef, input, stream) {');
+  output.push('function _tokenize(tokenDef, input, char, stream) {');
   output.push('  let match;');
   let key;
   for (let i = 0; i < keys.length; i++) {
     key = keys[i];
     const token = tokenDef[key];
     if (token.str) {
+      const strLen = token.str.length;
       if (token.str.indexOf("'") > -1 || token.str.indexOf('\n') > -1) {
-        output.push(`  if (input.startsWith(\`${token.str}\`)) {`);
+        output.push(`  if (input.substr(char, ${strLen}) === \`${token.str}\`) {`);
         output.push(`    return [\`${token.str}\`, '${key}'];`);
       } else {
-        output.push(`  if (input.startsWith('${token.str}')) {`);
+        output.push(`  if (input.substr(char, ${strLen}) === '${token.str}') {`);
         output.push(`    return ['${token.str}', '${key}'];`);
       }
       output.push('  }');
     } else if (token.reg) {
-      output.push(`  match = input.match(tokenDef.${key}.reg);`);
+      output.push(`  match = input.substring(char).match(tokenDef.${key}.reg);`);
       output.push('  if (match !== null) {');
       output.push(`    return [match[0], '${key}'];`);
       output.push('  }');
     } else if (token.func) {
-      output.push(`  match = tokenDef.${key}.func(input, stream);`);
+      output.push(`  match = tokenDef.${key}.func(input.substring(char), stream);`);
       output.push('  if (match !== undefined) {');
       output.push(`    return [match, '${key}'];`);
       output.push('  }');
@@ -112,6 +118,7 @@ export function generateTokenizer(tokenDef: TokensDefinition): string[] {
 
   output.push('function tokenize(tokenDef, input) {');
   output.push(`  const stream = [];
+  const originalInput = input;
   let lastToken;
   let key;
   let candidate = null;
@@ -121,40 +128,41 @@ export function generateTokenizer(tokenDef: TokensDefinition): string[] {
   let line = 0;
   let column = 0;
   while (char < len) {
-    [candidate, key] = _tokenize(tokenDef, input, stream);
+    [candidate, key] = _tokenize(tokenDef, originalInput, char, stream);
     if (candidate !== null) {
+      const candidateLen = candidate.length;
       lastToken = {
         type: key,
         value: candidate,
         start: char,
         stream_index: index,
-        len: candidate.length,
+        len: candidateLen,
         line_start: line,
         column_start: column,
       };
-      const lines = candidate.split('\\n');
-      if (lines.length > 1) {
+      // Only split if there might be newlines (optimization)
+      if (candidate.indexOf('\\n') !== -1) {
+        const lines = candidate.split('\\n');
         line += lines.length - 1;
         column = lines[lines.length - 1].length;
       } else {
-        column += candidate.length;
+        column += candidateLen;
       }
       lastToken.lineEnd = line;
       lastToken.columnEnd = column;
       stream.push(lastToken);
       index++;
-      char += candidate.length;
-      input = input.slice(candidate.length);
+      char += candidateLen;
     } else {
       if (stream.length === 0) {
         throw new Error('Tokenizer error: total match failure');
       }
       if (lastToken) {
-        lastToken.pointer += lastToken.value.length;
+        lastToken.pointer += lastToken.len;
       }
-      let msg = \`Tokenizer error, no matching token found for \${input.slice(0, 26)}\`;
+      let msg = \`Tokenizer error, no matching token found for \${originalInput.slice(char, char + 26)}\`;
       if (lastToken) {
-        msg += \`Before token of type \${lastToken.type}: \${lastToken.value}\`;
+        msg += \` After token of type \${lastToken.type}: \${lastToken.value}\`;
       }
       const error = new Error(msg);
       error.token = lastToken;

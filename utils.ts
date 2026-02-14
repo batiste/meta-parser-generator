@@ -86,22 +86,6 @@ function displayError(stream: Token[], tokensDefinition: TokensDefinition, gramm
     }
   }
   
-  // If multiple alternatives failed at same position, show them
-  let expectedTokens = '';
-  if (bestFailure.best_failure_array && bestFailure.best_failure_array.length > 1) {
-    const uniqueExpected = new Set<string>();
-    bestFailure.best_failure_array.forEach(f => {
-      const expectedRule = grammar[f.type][f.sub_rule_index][f.sub_rule_token_index];
-      if (expectedRule) {
-        const verbose = tokensDefinition[expectedRule]?.verbose || expectedRule;
-        uniqueExpected.add(verbose);
-      }
-    });
-    if (uniqueExpected.size > 1) {
-      expectedTokens = `\n  Expected one of: ${YELLOW}${Array.from(uniqueExpected).join(', ')}${NC}`;
-    }
-  }
-  
   throw new Error(`
   ${RED}Parser error at line ${positions.lineNumber + 1} char ${positions.charNumber} to ${positions.end} ${NC}
   Unexpected ${YELLOW}${replaceInvisibleChars(token.value)}${NC}

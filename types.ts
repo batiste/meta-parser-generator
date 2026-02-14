@@ -51,5 +51,4 @@ export interface ParseFailure {
   token: Token;
   first_token: Token;
   success: false;
-  best_failure_array?: ParseFailure[];
 }

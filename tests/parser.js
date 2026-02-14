@@ -452,8 +452,9 @@ module.exports = {
     const result = START(stream, 0);
     if (!result) {
       return {
-        ...best_failure,
-        best_failure_array, 
+        success: false,
+        primary_failure: best_failure,
+        all_failures: best_failure_array,
       }
     }
     return result;

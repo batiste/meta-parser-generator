@@ -7,7 +7,7 @@ function parse(code) {
   const tokens = parser.tokenize(tokensDefinition, code);
   const ast = parser.parse(tokens);
   if (!ast.success && process.env.DEBUG) {
-    displayError(tokens, tokensDefinition, grammar, ast);
+    displayError(tokens, tokensDefinition, grammar, ast.primary_failure);
   }
   return ast;
 }
@@ -46,7 +46,7 @@ describe('Parser Tests', () => {
 `;
       const result = parse(code);
       expect(result.success).toBe(false);
-      expect(result.token).toBeDefined();
+      expect(result.primary_failure.token).toBeDefined();
     });
 
     test('unexpected character at start', () => {

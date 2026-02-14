@@ -329,6 +329,7 @@ export function generate(grammar: Grammar, tokensDef: TokensDefinition, debug: b
     const result = START(stream, 0);
     if (!result) {
       return {
+        success: false,
         primary_failure: best_failure,
         all_failures: best_failure_array,
       }

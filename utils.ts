@@ -90,7 +90,7 @@ function displayError(stream: Token[], tokensDefinition: TokensDefinition, gramm
   ${RED}Parser error at line ${positions.lineNumber + 1} char ${positions.charNumber} to ${positions.end} ${NC}
   Unexpected ${YELLOW}${replaceInvisibleChars(token.value)}${NC}
   Best match was at rule ${bestFailure.type}[${bestFailure.sub_rule_index}][${bestFailure.sub_rule_token_index}] ${rule}
-  token "${YELLOW}${replaceInvisibleChars(token.value)}${NC}" (type:${token.type}) doesn't match rule item ${YELLOW}${failingToken}${NC}${expectedTokens}
+  token "${YELLOW}${replaceInvisibleChars(token.value)}${NC}" (type:${token.type}) doesn't match rule item ${YELLOW}${failingToken}${NC}
   Context:
 ${streamContext(token, firstToken, stream)}
 `);

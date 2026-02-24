@@ -7,6 +7,8 @@ npm install meta-parser-generator
 Meta Parser Generator will help you generate an efficient parser using grammar and a token definition.
 Meta programming is used to generate a single self-contained parser file.
 
+> **Requires Node.js 18+ and an ESM project** (`"type": "module"` in your `package.json`).
+
 ## Characteristics
 
   * PEG parser (Parsing Expression Grammar) with ordered choice
@@ -41,8 +43,11 @@ This will generate a mathematical operation parser
   
 ```javascript
 // generator.js
-const { generateParser } = require('meta-parser-generator');
-const path = require('path');
+import { generateParser } from 'meta-parser-generator';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 // only 3 possible tokens
 const tokensDefinition = {
@@ -76,7 +81,12 @@ Then execute this script `node generate.js`
 
 ```javascript
 // generate.js
-const { tokensDefinition, grammar } = require('./generator');
+import { tokensDefinition, grammar } from './generator.js';
+import { generateParser } from 'meta-parser-generator';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 // this generate the executable parser file
 generateParser(grammar, tokensDefinition, path.resolve(__dirname, './parser.js'));
 console.log('parser generated');
@@ -85,9 +95,9 @@ console.log('parser generated');
 Then you can use the generated parser this way
 
 ```javascript
-const parser = require('./parser');
-const { tokensDefinition, grammar } = require('./generator');
-const { displayError } = require('meta-parser-generator');
+import parser from './parser.js';
+import { tokensDefinition, grammar } from './generator.js';
+import { displayError } from 'meta-parser-generator';
 
 function parse(input) {
   const tokens = parser.tokenize(tokensDefinition, input);

@@ -1,5 +1,5 @@
 
-const grammar = {
+export const grammar = {
   'START': [
     // necessary to accept the firt line to not be a newline
     ['GLOBAL_STATEMENT', 'GLOBAL_STATEMENTS*', 'EOS'],
@@ -16,8 +16,4 @@ const grammar = {
     ['math_operation', 'math_operator', 'number'],
     ['number'],
   ],
-};
-
-module.exports = {
-  grammar,
 };

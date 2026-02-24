@@ -274,7 +274,6 @@ let math_operation_0 = (stream, index) => {
   node.success = i === stream.length; node.last_index = i;
   return node;
 };
-math_operation_0 = memoize_left_recur('math_operation_0', math_operation_0);
 
 
 let math_operation_1 = (stream, index) => {
@@ -302,13 +301,12 @@ let math_operation_1 = (stream, index) => {
   node.success = i === stream.length; node.last_index = i;
   return node;
 };
-math_operation_1 = memoize('math_operation_1', math_operation_1);
 
 
-function math_operation(stream, index) {
+let math_operation = memoize_left_recur('math_operation', function math_operation_combined(stream, index) {
   return math_operation_0(stream, index)
     || math_operation_1(stream, index);
-}
+});
 function _tokenize(tokenDef, input, char, stream) {
   let match;
   match = input.substring(char).match(tokenDef.number.reg);
@@ -442,22 +440,25 @@ function tokenize(tokenDef, input) {
   return stream;
 }
 
-module.exports = {
-  parse: (stream) => {
-    best_failure = null;
-    best_failure_index = 0;
-    best_failure_array = [];
-    cache = {};
-    cacheR = {};
-    const result = START(stream, 0);
-    if (!result) {
-      return {
-        success: false,
-        primary_failure: best_failure,
-        all_failures: best_failure_array,
-      }
+
+const parse = (stream) => {
+  best_failure = null;
+  best_failure_index = 0;
+  best_failure_array = [];
+  cache = {};
+  cacheR = {};
+  const result = START(stream, 0);
+  if (!result) {
+    return {
+      success: false,
+      primary_failure: best_failure,
+      all_failures: best_failure_array,
     }
-    return result;
-  },
+  }
+  return result;
+}
+
+export default {
+  parse,
   tokenize,
 };

@@ -1,7 +1,7 @@
-const parser = require('./parser');
-const { tokensDefinition } = require('./tokensDefinition');
-const { grammar } = require('./grammar');
-const { displayError } = require('../dist/utils');
+import parser from './parser.js';
+import { tokensDefinition } from './tokensDefinition.js';
+import { grammar } from './grammar.js';
+import { displayError } from '../dist/utils.js';
 
 function parse(code) {
   const tokens = parser.tokenize(tokensDefinition, code);

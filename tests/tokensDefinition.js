@@ -22,7 +22,7 @@ function singleSpace(input) {
   }
 }
 
-const tokensDefinition = {
+export const tokensDefinition = {
   'number': { reg: /^[0-9]+(\.[0-9]*)?/ },
   'comment': { reg: /^\/\/[^\n]*/, verbose: 'comment' },
   'multiline_comment': { reg: /^\/\*+[^*]*\*+(?:[^/*][^*]*\*+)*\//, verbose: 'comment' },
@@ -43,8 +43,4 @@ const tokensDefinition = {
   'str': { func: strDef, verbose: 'string' },
   'w': { func: singleSpace, verbose: 'single white space' },
   'W': { reg: /^[\s]+/, verbose: 'multiple white spaces' },
-};
-
-module.exports = {
-  tokensDefinition,
 };

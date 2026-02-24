@@ -1,4 +1,4 @@
-import { ASTNode, RuleNode, Token, TokensDefinition, Grammar, ProcessedGrammar, ParseFailure } from "./types";
+import { ASTNode, RuleNode, Token, TokensDefinition, Grammar, ProcessedGrammar, ParseFailure } from "./types.js";
 
 const RED = '\x1B[0;31m';
 const YELLOW = '\x1B[1;33m';

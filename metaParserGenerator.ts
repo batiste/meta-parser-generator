@@ -1,7 +1,7 @@
 
 import * as fs from 'fs';
-import { preprocessGrammar, checkGrammarAndTokens } from './utils';
-import { TokensDefinition, Grammar, ProcessedRule } from './types';
+import { preprocessGrammar, checkGrammarAndTokens } from './utils.js';
+import { TokensDefinition, Grammar, ProcessedRule } from './types.js';
 
 
 const recordFailure = `
@@ -199,7 +199,8 @@ function generatesub_rule_index(
   index: number,
   ruleItems: ProcessedRule[],
   tokensDef: TokensDefinition,
-  debug: boolean
+  debug: boolean,
+  skipMemoize: boolean = false
 ): string[] {
   const output: string[] = [];
   output.push(`let ${name}_${index} = (stream, index) => {`);
@@ -281,10 +282,12 @@ function generatesub_rule_index(
   output.push('  node.success = i === stream.length; node.last_index = i;');
   output.push('  return node;');
   output.push('};');
-  if (ruleItems[0].leftRecursion) {
-    output.push(`${name}_${index} = memoize_left_recur('${name}_${index}', ${name}_${index});`);
-  } else {
-    output.push(`${name}_${index} = memoize('${name}_${index}', ${name}_${index});`);
+  if (!skipMemoize) {
+    if (ruleItems[0].leftRecursion) {
+      output.push(`${name}_${index} = memoize_left_recur('${name}_${index}', ${name}_${index});`);
+    } else {
+      output.push(`${name}_${index} = memoize('${name}_${index}', ${name}_${index});`);
+    }
   }
   output.push('\n');
   return output;
@@ -308,34 +311,49 @@ export function generate(grammar: Grammar, tokensDef: TokensDefinition, debug: b
   entries.forEach((key) => {
     let i = 0;
     const metaSub: string[] = [];
+    const hasLeftRecursion = newGrammar[key].some(ruleItems => ruleItems[0].leftRecursion);
     newGrammar[key].forEach((ruleItems) => {
-      output = output.concat(generatesub_rule_index(key, i, ruleItems, tokensDef, debug));
+      // When any alternative in this rule is left-recursive, skip individual memoize
+      // wrapping so the grow loop in the combined memoize_left_recur sees fresh results
+      // on every iteration instead of stale cached values.
+      output = output.concat(generatesub_rule_index(key, i, ruleItems, tokensDef, debug, hasLeftRecursion));
       metaSub.push(`${key}_${i}`);
       i++;
     });
-    output.push(`function ${key}(stream, index) {`);
     const st = metaSub.map(sub => `${sub}(stream, index)`).join('\n    || ');
-    output.push(`  return ${st};`);
-    output.push('}');
+    if (hasLeftRecursion) {
+      // Wrap the *combined* function so Guido van Rossum's seed-grow loop runs over
+      // every alternative (including the non-LR base cases) on each iteration.
+      output.push(`let ${key} = memoize_left_recur('${key}', function ${key}_combined(stream, index) {`);
+      output.push(`  return ${st};`);
+      output.push('});');
+    } else {
+      output.push(`function ${key}(stream, index) {`);
+      output.push(`  return ${st};`);
+      output.push('}');
+    }
   });
   output = output.concat(generateTokenizer(tokensDef));
-  output.push(`module.exports = {
-  parse: (stream) => {
-    best_failure = null;
-    best_failure_index = 0;
-    best_failure_array = [];
-    cache = {};
-    cacheR = {};
-    const result = START(stream, 0);
-    if (!result) {
-      return {
-        success: false,
-        primary_failure: best_failure,
-        all_failures: best_failure_array,
-      }
+  output.push(`
+const parse = (stream) => {
+  best_failure = null;
+  best_failure_index = 0;
+  best_failure_array = [];
+  cache = {};
+  cacheR = {};
+  const result = START(stream, 0);
+  if (!result) {
+    return {
+      success: false,
+      primary_failure: best_failure,
+      all_failures: best_failure_array,
     }
-    return result;
-  },
+  }
+  return result;
+}
+
+export default {
+  parse,
   tokenize,
 };
 `);
